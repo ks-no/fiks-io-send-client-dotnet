@@ -1,0 +1,206 @@
+using System;
+using System.IO;
+using System.Net.Http;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
+using FluentAssertions;
+using Microsoft.VisualStudio.TestPlatform.PlatformAbstractions.Interfaces;
+using Moq;
+using Moq.Protected;
+using Newtonsoft.Json;
+using Xunit;
+
+namespace KS.Fiks.Io.Send.Client.Tests
+{
+    public class FiksIoSenderTests
+    {
+        private readonly FiksIoSenderFixture _fixture;
+
+        public FiksIoSenderTests()
+        {
+            _fixture = new FiksIoSenderFixture();
+        }
+
+        [Fact]
+        public async Task ReturnsSentMessageApiModel()
+        {
+            var sut = _fixture.CreateSut();
+            var result = await sut.Send(new MessageSpecificationApiModel(), new MemoryStream());
+
+            result.Should().BeOfType<SentMessageApiModel>();
+        }
+
+        [Fact]
+        public async Task SendsAPostRequestWithExpectedHost()
+        {
+            var host = "test.host.com";
+
+            var sut = _fixture.WithHost(host).CreateSut();
+
+            var result = await sut.Send(new MessageSpecificationApiModel(), new MemoryStream());
+
+            _fixture.HttpMessageHandleMock.Protected().Verify(
+                "SendAsync",
+                Times.Exactly(1),
+                ItExpr.Is<HttpRequestMessage>(req =>
+                    req.RequestUri.Host == host
+                ),
+                ItExpr.IsAny<CancellationToken>()
+            );
+        }
+
+        [Fact]
+        public async Task SendsAPostRequestWithExpectedPort()
+        {
+            var port = 8081;
+
+            var sut = _fixture.WithPort(port).CreateSut();
+
+            var result = await sut.Send(new MessageSpecificationApiModel(), new MemoryStream());
+
+            _fixture.HttpMessageHandleMock.Protected().Verify(
+                "SendAsync",
+                Times.Exactly(1),
+                ItExpr.Is<HttpRequestMessage>(req =>
+                    req.RequestUri.Port == port
+                ),
+                ItExpr.IsAny<CancellationToken>()
+            );
+        }
+
+        [Fact]
+        public async Task SendsAPostRequestWithExpectedScheme()
+        {
+            var scheme = "https";
+
+            var sut = _fixture.WithScheme(scheme).CreateSut();
+
+            var result = await sut.Send(new MessageSpecificationApiModel(), new MemoryStream());
+
+            _fixture.HttpMessageHandleMock.Protected().Verify(
+                "SendAsync",
+                Times.Exactly(1),
+                ItExpr.Is<HttpRequestMessage>(req =>
+                    req.RequestUri.Scheme == scheme
+                ),
+                ItExpr.IsAny<CancellationToken>()
+            );
+        }
+
+        [Fact]
+        public async Task SendAPostRequestToExpectedPath()
+        {
+            var expectedRequestPath = "/svarinn2/api/v1/send";
+
+            var sut = _fixture.CreateSut();
+
+            var result = await sut.Send(new MessageSpecificationApiModel(), new MemoryStream());
+
+            _fixture.HttpMessageHandleMock.Protected().Verify(
+                "SendAsync",
+                Times.Exactly(1),
+                ItExpr.Is<HttpRequestMessage>(req =>
+                    req.RequestUri.PathAndQuery == expectedRequestPath
+                ),
+                ItExpr.IsAny<CancellationToken>()
+            );
+        }
+
+        [Fact]
+        public async Task SendsExpectedMetadata()
+        {
+            var sut = _fixture.CreateSut();
+
+            var model = new MessageSpecificationApiModel
+            {
+                AvsenderKontoId = new Guid(),
+                MottakerKontoId = new Guid(),
+                MeldingType = "A type",
+                SvarPaMelding = new Guid(),
+                Ttl = 100
+            };
+            var serializedModel = JsonConvert.SerializeObject(model);
+            var result = await sut.Send(model, new MemoryStream());
+
+            _fixture.HttpMessageHandleMock.Protected().Verify(
+                "SendAsync",
+                Times.Exactly(1),
+                ItExpr.Is<HttpRequestMessage>(req =>
+                    TestHelper.GetPartContent(req, "metadata").Result == serializedModel
+                ),
+                ItExpr.IsAny<CancellationToken>()
+            );
+        }
+
+        [Fact]
+        public async Task SendsExpectedFile()
+        {
+            var sut = _fixture.CreateSut();
+
+            var memoryStream = new FileStream("./testfile.txt", FileMode.Open);
+
+            var fileText = File.ReadAllText("./testfile.txt");
+
+            var result = await sut.Send(new MessageSpecificationApiModel(), memoryStream);
+
+            _fixture.HttpMessageHandleMock.Protected().Verify(
+                "SendAsync",
+                Times.Exactly(1),
+                ItExpr.Is<HttpRequestMessage>(req =>
+                    TestHelper.GetPartContent(req, "data").Result == fileText
+                ),
+                ItExpr.IsAny<CancellationToken>()
+            );
+        }
+
+        [Fact]
+        public async Task SendsFileWithUuidFilename()
+        {
+            var sut = _fixture.CreateSut();
+
+            var memoryStream = new FileStream("./testfile.txt", FileMode.Open);
+
+            var fileText = File.ReadAllText("./testfile.txt");
+
+            var result = await sut.Send(new MessageSpecificationApiModel(), memoryStream);
+
+            Guid tmp;
+
+            _fixture.HttpMessageHandleMock.Protected().Verify(
+                "SendAsync",
+                Times.Exactly(1),
+                ItExpr.Is<HttpRequestMessage>(req =>
+                    Guid.TryParse(TestHelper.GetPartHeader(req, "data", "filename"), out tmp)
+                ),
+                ItExpr.IsAny<CancellationToken>()
+            );
+        }
+
+        [Fact]
+        public async Task ReturnsExpectedSentMessageApiModel()
+        {
+            var expectedResult = new SentMessageApiModel
+            {
+                MeldingId = Guid.NewGuid(),
+                MeldingType = "type",
+                AvsenderKontoId = Guid.NewGuid(),
+                MottakerKontoId = Guid.NewGuid(),
+                Ttl = 10,
+                DokumentlagerId = Guid.NewGuid(),
+                SvarPaMelding = Guid.NewGuid()
+            };
+            
+            var sut = _fixture.WithReturnValue(expectedResult).CreateSut();
+            var result = await sut.Send(new MessageSpecificationApiModel(), new MemoryStream());
+            result.MeldingId.Should().Be(expectedResult.MeldingId);
+            result.MeldingType.Should().Be(expectedResult.MeldingType);
+            result.AvsenderKontoId.Should().Be(expectedResult.AvsenderKontoId);
+            result.MottakerKontoId.Should().Be(expectedResult.MottakerKontoId);
+            result.Ttl.Should().Be(expectedResult.Ttl);
+            result.DokumentlagerId.Should().Be(expectedResult.DokumentlagerId);
+            result.SvarPaMelding.Should().Be(expectedResult.SvarPaMelding);
+
+        }
+    }
+}
