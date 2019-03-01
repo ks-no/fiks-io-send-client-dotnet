@@ -1,5 +1,7 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net.Http;
 using System.Text;
 using System.Threading;
@@ -26,7 +28,7 @@ namespace KS.Fiks.Io.Send.Client.Tests
         public async Task ReturnsSentMessageApiModel()
         {
             var sut = _fixture.CreateSut();
-            var result = await sut.Send(new MessageSpecificationApiModel(), new MemoryStream());
+            var result = await sut.Send(new MessageSpecificationApiModel(), new MemoryStream()).ConfigureAwait(false);
 
             result.Should().BeOfType<SentMessageApiModel>();
         }
@@ -38,16 +40,14 @@ namespace KS.Fiks.Io.Send.Client.Tests
 
             var sut = _fixture.WithHost(host).CreateSut();
 
-            var result = await sut.Send(new MessageSpecificationApiModel(), new MemoryStream());
+            var result = await sut.Send(new MessageSpecificationApiModel(), new MemoryStream()).ConfigureAwait(false);
 
             _fixture.HttpMessageHandleMock.Protected().Verify(
                 "SendAsync",
                 Times.Exactly(1),
                 ItExpr.Is<HttpRequestMessage>(req =>
-                    req.RequestUri.Host == host
-                ),
-                ItExpr.IsAny<CancellationToken>()
-            );
+                    req.RequestUri.Host == host),
+                ItExpr.IsAny<CancellationToken>());
         }
 
         [Fact]
@@ -57,16 +57,14 @@ namespace KS.Fiks.Io.Send.Client.Tests
 
             var sut = _fixture.WithPort(port).CreateSut();
 
-            var result = await sut.Send(new MessageSpecificationApiModel(), new MemoryStream());
+            var result = await sut.Send(new MessageSpecificationApiModel(), new MemoryStream()).ConfigureAwait(false);
 
             _fixture.HttpMessageHandleMock.Protected().Verify(
                 "SendAsync",
                 Times.Exactly(1),
                 ItExpr.Is<HttpRequestMessage>(req =>
-                    req.RequestUri.Port == port
-                ),
-                ItExpr.IsAny<CancellationToken>()
-            );
+                    req.RequestUri.Port == port),
+                ItExpr.IsAny<CancellationToken>());
         }
 
         [Fact]
@@ -76,16 +74,14 @@ namespace KS.Fiks.Io.Send.Client.Tests
 
             var sut = _fixture.WithScheme(scheme).CreateSut();
 
-            var result = await sut.Send(new MessageSpecificationApiModel(), new MemoryStream());
+            var result = await sut.Send(new MessageSpecificationApiModel(), new MemoryStream()).ConfigureAwait(false);
 
             _fixture.HttpMessageHandleMock.Protected().Verify(
                 "SendAsync",
                 Times.Exactly(1),
                 ItExpr.Is<HttpRequestMessage>(req =>
-                    req.RequestUri.Scheme == scheme
-                ),
-                ItExpr.IsAny<CancellationToken>()
-            );
+                    req.RequestUri.Scheme == scheme),
+                ItExpr.IsAny<CancellationToken>());
         }
 
         [Fact]
@@ -95,16 +91,14 @@ namespace KS.Fiks.Io.Send.Client.Tests
 
             var sut = _fixture.CreateSut();
 
-            var result = await sut.Send(new MessageSpecificationApiModel(), new MemoryStream());
+            var result = await sut.Send(new MessageSpecificationApiModel(), new MemoryStream()).ConfigureAwait(false);
 
             _fixture.HttpMessageHandleMock.Protected().Verify(
                 "SendAsync",
                 Times.Exactly(1),
                 ItExpr.Is<HttpRequestMessage>(req =>
-                    req.RequestUri.PathAndQuery == expectedRequestPath
-                ),
-                ItExpr.IsAny<CancellationToken>()
-            );
+                    req.RequestUri.PathAndQuery == expectedRequestPath),
+                ItExpr.IsAny<CancellationToken>());
         }
 
         [Fact]
@@ -114,23 +108,21 @@ namespace KS.Fiks.Io.Send.Client.Tests
 
             var model = new MessageSpecificationApiModel
             {
-                AvsenderKontoId = new Guid(),
-                MottakerKontoId = new Guid(),
+                AvsenderKontoId = Guid.NewGuid(),
+                MottakerKontoId = Guid.NewGuid(),
                 MeldingType = "A type",
-                SvarPaMelding = new Guid(),
+                SvarPaMelding = Guid.NewGuid(),
                 Ttl = 100
             };
             var serializedModel = JsonConvert.SerializeObject(model);
-            var result = await sut.Send(model, new MemoryStream());
+            var result = await sut.Send(model, new MemoryStream()).ConfigureAwait(false);
 
             _fixture.HttpMessageHandleMock.Protected().Verify(
                 "SendAsync",
                 Times.Exactly(1),
                 ItExpr.Is<HttpRequestMessage>(req =>
-                    TestHelper.GetPartContent(req, "metadata").Result == serializedModel
-                ),
-                ItExpr.IsAny<CancellationToken>()
-            );
+                    TestHelper.GetPartContent(req, "metadata").Result == serializedModel),
+                ItExpr.IsAny<CancellationToken>());
         }
 
         [Fact]
@@ -142,16 +134,14 @@ namespace KS.Fiks.Io.Send.Client.Tests
 
             var fileText = File.ReadAllText("./testfile.txt");
 
-            var result = await sut.Send(new MessageSpecificationApiModel(), memoryStream);
+            var result = await sut.Send(new MessageSpecificationApiModel(), memoryStream).ConfigureAwait(false);
 
             _fixture.HttpMessageHandleMock.Protected().Verify(
                 "SendAsync",
                 Times.Exactly(1),
                 ItExpr.Is<HttpRequestMessage>(req =>
-                    TestHelper.GetPartContent(req, "data").Result == fileText
-                ),
-                ItExpr.IsAny<CancellationToken>()
-            );
+                    TestHelper.GetPartContent(req, "data").Result == fileText),
+                ItExpr.IsAny<CancellationToken>());
         }
 
         [Fact]
@@ -161,9 +151,7 @@ namespace KS.Fiks.Io.Send.Client.Tests
 
             var memoryStream = new FileStream("./testfile.txt", FileMode.Open);
 
-            var fileText = File.ReadAllText("./testfile.txt");
-
-            var result = await sut.Send(new MessageSpecificationApiModel(), memoryStream);
+            var result = await sut.Send(new MessageSpecificationApiModel(), memoryStream).ConfigureAwait(false);
 
             Guid tmp;
 
@@ -171,10 +159,8 @@ namespace KS.Fiks.Io.Send.Client.Tests
                 "SendAsync",
                 Times.Exactly(1),
                 ItExpr.Is<HttpRequestMessage>(req =>
-                    Guid.TryParse(TestHelper.GetPartHeader(req, "data", "filename"), out tmp)
-                ),
-                ItExpr.IsAny<CancellationToken>()
-            );
+                    Guid.TryParse(TestHelper.GetPartHeader(req, "data", "filename"), out tmp)),
+                ItExpr.IsAny<CancellationToken>());
         }
 
         [Fact]
@@ -190,9 +176,9 @@ namespace KS.Fiks.Io.Send.Client.Tests
                 DokumentlagerId = Guid.NewGuid(),
                 SvarPaMelding = Guid.NewGuid()
             };
-            
+
             var sut = _fixture.WithReturnValue(expectedResult).CreateSut();
-            var result = await sut.Send(new MessageSpecificationApiModel(), new MemoryStream());
+            var result = await sut.Send(new MessageSpecificationApiModel(), new MemoryStream()).ConfigureAwait(false);
             result.MeldingId.Should().Be(expectedResult.MeldingId);
             result.MeldingType.Should().Be(expectedResult.MeldingType);
             result.AvsenderKontoId.Should().Be(expectedResult.AvsenderKontoId);
@@ -200,7 +186,30 @@ namespace KS.Fiks.Io.Send.Client.Tests
             result.Ttl.Should().Be(expectedResult.Ttl);
             result.DokumentlagerId.Should().Be(expectedResult.DokumentlagerId);
             result.SvarPaMelding.Should().Be(expectedResult.SvarPaMelding);
+        }
 
+        [Fact]
+        public async Task SetsAuthenticationHeaders()
+        {
+            var authorizationHeaders = new Dictionary<string, string>
+            {
+                { "AUTHORIZATION", "BEARER alkdjfhsdgkjsdhfkjsdhg" },
+                { "integrationId", "myId" }
+            };
+
+            var sut = _fixture.WithAuthorizationHeaders(authorizationHeaders).CreateSut();
+
+            var result = await sut.Send(new MessageSpecificationApiModel(), new MemoryStream()).ConfigureAwait(false);
+
+            _fixture.HttpMessageHandleMock.Protected().Verify(
+                "SendAsync",
+                Times.Exactly(1),
+                ItExpr.Is<HttpRequestMessage>(req =>
+                    req.Headers.GetValues("AUTHORIZATION").FirstOrDefault() ==
+                    authorizationHeaders["AUTHORIZATION"] &&
+                    req.Headers.GetValues("integrationId").FirstOrDefault() ==
+                    authorizationHeaders["integrationId"]),
+                ItExpr.IsAny<CancellationToken>());
         }
     }
 }

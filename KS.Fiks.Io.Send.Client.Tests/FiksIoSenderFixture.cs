@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Globalization;
 using System.Net;
 using System.Net.Http;
@@ -11,26 +12,33 @@ namespace KS.Fiks.Io.Send.Client.Tests
 {
     public class FiksIoSenderFixture
     {
-        
         private string _fiksIoScheme;
         private string _fiksIoHost;
         private int _fiksIoPort;
         private HttpStatusCode _statusCode;
         private SentMessageApiModel _returnValue;
+        private Dictionary<string, string> _authorizationHeaders;
+
         public FiksIoSenderFixture()
         {
             SetDefaultValues();
             AuthenticationStrategyMock = new Mock<IAuthenticationStrategy>();
             HttpMessageHandleMock = new Mock<HttpMessageHandler>();
         }
-        
+
         public Mock<IAuthenticationStrategy> AuthenticationStrategyMock { get; }
+
         public Mock<HttpMessageHandler> HttpMessageHandleMock { get; }
-        
+
         public FiksIoSender CreateSut()
         {
             SetupMocks();
-            return new FiksIoSender(_fiksIoScheme, _fiksIoHost,_fiksIoPort, AuthenticationStrategyMock.Object, new HttpClient(HttpMessageHandleMock.Object));
+            return new FiksIoSender(
+                _fiksIoScheme,
+                _fiksIoHost,
+                _fiksIoPort,
+                AuthenticationStrategyMock.Object,
+                new HttpClient(HttpMessageHandleMock.Object));
         }
 
         public FiksIoSenderFixture WithScheme(string scheme)
@@ -50,7 +58,7 @@ namespace KS.Fiks.Io.Send.Client.Tests
             _fiksIoPort = port;
             return this;
         }
-        
+
         public FiksIoSenderFixture WithStatusCode(HttpStatusCode code)
         {
             _statusCode = code;
@@ -63,6 +71,12 @@ namespace KS.Fiks.Io.Send.Client.Tests
             return this;
         }
 
+        public FiksIoSenderFixture WithAuthorizationHeaders(Dictionary<string, string> value)
+        {
+            _authorizationHeaders = value;
+            return this;
+        }
+
         private void SetDefaultValues()
         {
             _fiksIoHost = "test.no";
@@ -70,13 +84,15 @@ namespace KS.Fiks.Io.Send.Client.Tests
             _fiksIoPort = 8084;
             _statusCode = HttpStatusCode.OK;
             _returnValue = new SentMessageApiModel();
+            _authorizationHeaders = new Dictionary<string, string>();
         }
 
         private void SetupMocks()
         {
             SetHttpResponse();
+            SetupAuthenticationStrategyMock();
         }
-        
+
         private void SetHttpResponse()
         {
             var responseMessage = new HttpResponseMessage()
@@ -90,8 +106,7 @@ namespace KS.Fiks.Io.Send.Client.Tests
                 .Setup<Task<HttpResponseMessage>>(
                     "SendAsync",
                     ItExpr.IsAny<HttpRequestMessage>(),
-                    ItExpr.IsAny<CancellationToken>()
-                )
+                    ItExpr.IsAny<CancellationToken>())
                 .ReturnsAsync(responseMessage)
                 .Verifiable();
         }
@@ -99,6 +114,11 @@ namespace KS.Fiks.Io.Send.Client.Tests
         private string GenerateJsonResponse()
         {
             return JsonConvert.SerializeObject(_returnValue);
+        }
+
+        private void SetupAuthenticationStrategyMock()
+        {
+            AuthenticationStrategyMock.Setup(x => x.GetAuthorizationHeaders()).ReturnsAsync(_authorizationHeaders);
         }
     }
 }
