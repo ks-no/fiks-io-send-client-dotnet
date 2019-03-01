@@ -1,20 +1,22 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+﻿
+<Project Sdk="Microsoft.NET.Sdk">
 
-    <PropertyGroup>
-        <TargetFramework>netcoreapp2.2</TargetFramework>
-        <RootNamespace>KS.Fiks.IO.Send.Client</RootNamespace>
-    </PropertyGroup>
+<PropertyGroup>
+    <TargetFramework>netcoreapp2.2</TargetFramework>
+    <RootNamespace>KS.Fiks.IO.Send.Client</RootNamespace>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PackageId>IoSendClient</PackageId>
+    <Version>0.0.1</Version>
+    <Authors>KS DotNet Team</Authors>
+    <Copyright>© KS 2019</Copyright>
+    <Title>Library for sending files with fiks IO</Title>
+</PropertyGroup>
 
-    <ItemGroup>
-      <Reference Include="Newtonsoft.Json, Version=9.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed">
-        <HintPath>..\..\..\..\..\usr\share\dotnet\sdk\NuGetFallbackFolder\newtonsoft.json\9.0.1\lib\netstandard1.0\Newtonsoft.Json.dll</HintPath>
-      </Reference>
-    </ItemGroup>
-
-    <ItemGroup>
-      <PackageReference Include="KS.Fiks.QA" Version="0.9.9-dev-50" />
-      <PackageReference Include="MaskinportenClient" Version="0.0.4.1-dev0001" />
-      <PackageReference Include="Newtonsoft.Json" Version="12.0.1" />
-    </ItemGroup>
+<ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.1" />
+    <PackageReference Include="MSBump" Version="2.3.2" PrivateAssets="All" />
+    <PackageReference Include="KS.Fiks.QA" Version="0.9.9-dev-50" />
+    <PackageReference Include="MaskinportenClient" Version="0.0.4.1-dev0001" />
+</ItemGroup>
 
 </Project>
