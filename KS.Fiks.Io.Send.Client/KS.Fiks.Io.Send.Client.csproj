@@ -1,11 +1,10 @@
-﻿
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
 <PropertyGroup>
     <TargetFramework>netcoreapp2.2</TargetFramework>
     <RootNamespace>KS.Fiks.IO.Send.Client</RootNamespace>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <PackageId>KS.Fiks.Io.SendClient</PackageId>
+    <PackageId>KS.Fiks.IO.Send.Client</PackageId>
     <Version>0.0.1</Version>
     <Authors>KS DotNet Team</Authors>
     <Copyright>© KS 2019</Copyright>
@@ -16,7 +15,7 @@
     <PackageReference Include="Newtonsoft.Json" Version="12.0.1" />
     <PackageReference Include="MSBump" Version="2.3.2" PrivateAssets="All" />
     <PackageReference Include="KS.Fiks.QA" Version="0.9.9-dev-50" />
-    <PackageReference Include="MaskinportenClient" Version="0.0.4.1-dev0001" />
+    <PackageReference Include="KS.Fiks.MaskinportenClient" Version="0.0.4.1-dev0090" />
 </ItemGroup>
 
 </Project>
