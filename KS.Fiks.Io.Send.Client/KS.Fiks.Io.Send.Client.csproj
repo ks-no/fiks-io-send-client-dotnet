@@ -5,7 +5,7 @@
     <TargetFramework>netcoreapp2.2</TargetFramework>
     <RootNamespace>KS.Fiks.IO.Send.Client</RootNamespace>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <PackageId>IoSendClient</PackageId>
+    <PackageId>KS.Fiks.Io.SendClient</PackageId>
     <Version>0.0.1</Version>
     <Authors>KS DotNet Team</Authors>
     <Copyright>© KS 2019</Copyright>
