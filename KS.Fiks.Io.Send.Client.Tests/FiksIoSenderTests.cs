@@ -3,11 +3,10 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
-using Microsoft.VisualStudio.TestPlatform.PlatformAbstractions.Interfaces;
+using KS.Fiks.Io.Send.Client.Exceptions;
 using Moq;
 using Moq.Protected;
 using Newtonsoft.Json;
@@ -210,6 +209,16 @@ namespace KS.Fiks.Io.Send.Client.Tests
                     req.Headers.GetValues("integrationId").FirstOrDefault() ==
                     authorizationHeaders["integrationId"]),
                 ItExpr.IsAny<CancellationToken>());
+        }
+
+        [Fact]
+        public async Task ThrowsExceptionIfResponseIsNotParsable()
+        {
+            var sut = _fixture.WithInvalidReturnValue().CreateSut();
+            await Assert.ThrowsAsync<FiksIoParseException>(
+                async () => await sut.Send(new MessageSpecificationApiModel(), new MemoryStream())
+                                     .ConfigureAwait(false))
+                        .ConfigureAwait(false);
         }
     }
 }

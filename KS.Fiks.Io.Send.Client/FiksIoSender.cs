@@ -4,6 +4,7 @@ using System.IO;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
+using KS.Fiks.Io.Send.Client.Exceptions;
 using Newtonsoft.Json;
 
 namespace KS.Fiks.Io.Send.Client
@@ -38,18 +39,32 @@ namespace KS.Fiks.Io.Send.Client
         {
             await SetAuthorizationHeaders().ConfigureAwait(false);
 
-            var response = await _httpClient.PostAsync(
-                                                CreateUri(),
-                                                CreateRequestContent(metaData, data))
-                                            .ConfigureAwait(false);
+            var response = await SendDataWithPost(metaData, data).ConfigureAwait(false);
 
             return await DeserializeResponse(response).ConfigureAwait(false);
         }
 
-        private static async Task<SentMessageApiModel> DeserializeResponse(HttpResponseMessage response)
+        private async Task<SentMessageApiModel> DeserializeResponse(HttpResponseMessage response)
         {
-            return JsonConvert.DeserializeObject<SentMessageApiModel>(
-                await response.Content.ReadAsStringAsync().ConfigureAwait(false));
+            var responseString = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+
+            try
+            {
+                return JsonConvert.DeserializeObject<SentMessageApiModel>(responseString);
+            }
+            catch (Exception innerException)
+            {
+                throw new FiksIoParseException(
+                    $"Unable to parse response from {_fiksIoScheme}/{_fiksIoHost}:{_fiksIoPort}/{SendPath}. Response: {responseString}.", innerException);
+            }
+        }
+
+        private async Task<HttpResponseMessage> SendDataWithPost(MessageSpecificationApiModel metaData, Stream data)
+        {
+            return await _httpClient.PostAsync(
+                                        CreateUri(),
+                                        CreateRequestContent(metaData, data))
+                                    .ConfigureAwait(false);
         }
 
         private async Task SetAuthorizationHeaders()

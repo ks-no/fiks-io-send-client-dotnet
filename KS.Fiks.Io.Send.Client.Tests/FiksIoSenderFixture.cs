@@ -18,6 +18,7 @@ namespace KS.Fiks.Io.Send.Client.Tests
         private HttpStatusCode _statusCode;
         private SentMessageApiModel _returnValue;
         private Dictionary<string, string> _authorizationHeaders;
+        private bool _useInvalidReturnValue = false;
 
         public FiksIoSenderFixture()
         {
@@ -77,6 +78,12 @@ namespace KS.Fiks.Io.Send.Client.Tests
             return this;
         }
 
+        public FiksIoSenderFixture WithInvalidReturnValue()
+        {
+            _useInvalidReturnValue = true;
+            return this;
+        }
+
         private void SetDefaultValues()
         {
             _fiksIoHost = "test.no";
@@ -98,7 +105,7 @@ namespace KS.Fiks.Io.Send.Client.Tests
             var responseMessage = new HttpResponseMessage()
             {
                 StatusCode = _statusCode,
-                Content = new StringContent(GenerateJsonResponse()),
+                Content = _useInvalidReturnValue ? GenerateInvalidResponse() : GenerateJsonResponse()
             };
 
             HttpMessageHandleMock
@@ -111,9 +118,14 @@ namespace KS.Fiks.Io.Send.Client.Tests
                 .Verifiable();
         }
 
-        private string GenerateJsonResponse()
+        private StringContent GenerateJsonResponse()
         {
-            return JsonConvert.SerializeObject(_returnValue);
+            return new StringContent(JsonConvert.SerializeObject(_returnValue));
+        }
+
+        private StringContent GenerateInvalidResponse()
+        {
+            return new StringContent(">DSFSV#%¤DFGHV___XCXV132<>");
         }
 
         private void SetupAuthenticationStrategyMock()
