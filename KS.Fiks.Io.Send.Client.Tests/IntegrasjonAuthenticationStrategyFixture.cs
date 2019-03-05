@@ -45,21 +45,12 @@ namespace KS.Fiks.Io.Send.Client.Tests
 
         private void SetupMocks()
         {
-            var maskinportenTokenAsJsonString = @"{
-            ""aud"": ""oidc_ks_test"",
-            ""scope"": ""ks"",
-            ""iss"": ""https://oidc-ver2.difi.no/idporten-oidc-provider/"",
-            ""token_type"": ""Bearer"",
-            ""exp"": 1550837855,
-            ""iat"": 1550837825,
-            ""client_orgno"": ""987654321"",
-            ""jti"": ""ifFO_xAYGepbtUxZhUcESoNkewGG6v15sfCWGPm_MUI=""
-            }";
+            var maskinportenTokenAsJsonString = @"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c";
 
             MaskinportenClientMock = new Mock<IMaskinportenClient>();
             MaskinportenClientMock.Setup(x => x.GetAccessToken(It.IsAny<string>()))
                                   .ReturnsAsync(
-                                      MaskinportenToken.CreateFromJsonString(maskinportenTokenAsJsonString, 1000));
+                                      new MaskinportenToken(maskinportenTokenAsJsonString, 1000));
         }
     }
 }

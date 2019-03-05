@@ -26,7 +26,7 @@ namespace KS.Fiks.Io.Send.Client
             var auth = await _maskinportenClient.GetAccessToken("ks").ConfigureAwait(false);
             return new Dictionary<string, string>
             {
-                { "AUTHORIZATION", $"Bearer {auth.AsJsonString()}" },
+                { "AUTHORIZATION", $"Bearer {auth.Token}" },
                 { "IntegrasjonId", _integrasjonId.ToString() },
                 { "IntegrasjonPassord", _integrasjonPassword }
             };
