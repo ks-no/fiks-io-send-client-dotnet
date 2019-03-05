@@ -55,7 +55,7 @@ namespace KS.Fiks.Io.Send.Client
             catch (Exception innerException)
             {
                 throw new FiksIoParseException(
-                    $"Unable to parse response from {_fiksIoScheme}/{_fiksIoHost}:{_fiksIoPort}/{SendPath}. Response: {responseString}.", innerException);
+                    $"Unable to parse response from {_fiksIoScheme}://{_fiksIoHost}:{_fiksIoPort}{SendPath}. Response: {responseString}.", innerException);
             }
         }
 
