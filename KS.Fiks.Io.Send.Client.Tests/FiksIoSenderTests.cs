@@ -159,7 +159,7 @@ namespace KS.Fiks.Io.Send.Client.Tests
                 "SendAsync",
                 Times.Exactly(1),
                 ItExpr.Is<HttpRequestMessage>(req =>
-                    Guid.TryParse(TestHelper.GetPartHeader(req, "data", "filename"), out tmp)),
+                    Guid.TryParse(TestHelper.GetFilename(req, "data"), out tmp)),
                 ItExpr.IsAny<CancellationToken>());
         }
 
