@@ -75,6 +75,7 @@ namespace KS.Fiks.Io.Send.Client
             var request = new MultipartFormDataContent(Guid.NewGuid().ToString());
             request.Add(stringContent, "metadata");
             request.Add(dataContent, "data", Guid.NewGuid().ToString());
+            System.Console.WriteLine(request.ReadAsStringAsync().Result);
             return request;
         }
 
