@@ -62,7 +62,7 @@ namespace KS.Fiks.Io.Send.Client
                                     .ConfigureAwait(false);
         }
 
-        private MultipartContent CreateRequestContent(MessageSpecificationApiModel metaData, Stream data)
+        private MultipartFormDataContent CreateRequestContent(MessageSpecificationApiModel metaData, Stream data)
         {
             var stringContent = new StringContent(JsonConvert.SerializeObject(metaData));
             stringContent.Headers.Add("name", "metadata");
@@ -70,7 +70,7 @@ namespace KS.Fiks.Io.Send.Client
             dataContent.Headers.Add("name", "data");
             dataContent.Headers.Add("filename", Guid.NewGuid().ToString());
 
-            var request = new MultipartContent {stringContent, dataContent};
+            var request = new MultipartFormDataContent {stringContent, dataContent};
 
             return request;
         }
