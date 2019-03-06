@@ -7,7 +7,6 @@ using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
-using Ks.Fiks.Maskinporten.Client;
 using KS.Fiks.Io.Send.Client.Exceptions;
 using Moq;
 using Moq.Protected;
@@ -225,16 +224,27 @@ namespace KS.Fiks.Io.Send.Client.Tests
 
         [Theory]
         [InlineData(HttpStatusCode.NotFound)]
-        [InlineData(HttpStatusCode.Unauthorized)]
         [InlineData(HttpStatusCode.InternalServerError)]
         [InlineData(HttpStatusCode.NoContent)]
         [InlineData(HttpStatusCode.Redirect)]
         [InlineData(HttpStatusCode.Forbidden)]
+        [InlineData(HttpStatusCode.UnavailableForLegalReasons)]
         public async Task ThrowsExceptionIfStatusCodeIsNot200(HttpStatusCode statusCode)
         {
             var sut = _fixture.WithStatusCode(statusCode).CreateSut();
 
             await Assert.ThrowsAsync<FiksIoSendUnexpectedResponseException>(
+                            async () => await sut.Send(new MessageSpecificationApiModel(), new MemoryStream())
+                                                 .ConfigureAwait(false))
+                        .ConfigureAwait(false);
+        }
+
+        [Fact]
+        public async Task ThrowsUnauthorizedExceptionIfStatusCodeIs401()
+        {
+            var sut = _fixture.WithStatusCode(HttpStatusCode.Unauthorized).CreateSut();
+
+            await Assert.ThrowsAsync<FiksIoSendUnauthorizedException>(
                             async () => await sut.Send(new MessageSpecificationApiModel(), new MemoryStream())
                                                  .ConfigureAwait(false))
                         .ConfigureAwait(false);

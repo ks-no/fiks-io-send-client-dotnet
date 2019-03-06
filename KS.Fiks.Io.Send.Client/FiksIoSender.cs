@@ -39,6 +39,8 @@ namespace KS.Fiks.Io.Send.Client
             await SetAuthorizationHeaders().ConfigureAwait(false);
 
             var response = await SendDataWithPost(metaData, data).ConfigureAwait(false);
+
+            await ThrowIfUnauthorized(response).ConfigureAwait(false);
             await ThrowIfResponseIsInvalid(response).ConfigureAwait(false);
 
             return await DeserializeResponse(response).ConfigureAwait(false);
@@ -68,7 +70,7 @@ namespace KS.Fiks.Io.Send.Client
             dataContent.Headers.Add("name", "data");
             dataContent.Headers.Add("filename", Guid.NewGuid().ToString());
 
-            var request = new MultipartContent { stringContent, dataContent };
+            var request = new MultipartContent {stringContent, dataContent};
 
             return request;
         }
@@ -77,6 +79,16 @@ namespace KS.Fiks.Io.Send.Client
         {
             var uriBuilder = new UriBuilder(_fiksIoScheme, _fiksIoHost, _fiksIoPort, SendPath);
             return uriBuilder.Uri;
+        }
+
+        private async Task ThrowIfUnauthorized(HttpResponseMessage response)
+        {
+            if (response.StatusCode == HttpStatusCode.Unauthorized)
+            {
+                var responseString = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+                throw new FiksIoSendUnauthorizedException(
+                    $"Got response Unauthorized (401) from {SendUriToString()}. Response: {responseString}.");
+            }
         }
 
         private async Task ThrowIfResponseIsInvalid(HttpResponseMessage response)
