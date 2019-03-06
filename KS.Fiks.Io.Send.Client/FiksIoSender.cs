@@ -86,7 +86,7 @@ namespace KS.Fiks.Io.Send.Client
             {
                 var responseString = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
                 throw new FiksIoSendUnauthorizedException(
-                    $"Got response Unauthorized (401) from {SendUriToString()}. Response: {responseString}.");
+                    $"Got response Unauthorized (401) from {CreateUri()}. Response: {responseString}.");
             }
         }
 
@@ -96,7 +96,7 @@ namespace KS.Fiks.Io.Send.Client
             {
                 var responseString = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
                 throw new FiksIoSendUnexpectedResponseException(
-                    $"Got unexpected HTTP Status code {response.StatusCode} from {SendUriToString()}. Response: {responseString}.");
+                    $"Got unexpected HTTP Status code {response.StatusCode} from {CreateUri()}. Response: {responseString}.");
             }
         }
 
@@ -111,14 +111,9 @@ namespace KS.Fiks.Io.Send.Client
             catch (Exception innerException)
             {
                 throw new FiksIoSendParseException(
-                    $"Unable to parse response from {SendUriToString()}. Response: {responseString}.",
+                    $"Unable to parse response from {CreateUri()}. Response: {responseString}.",
                     innerException);
             }
-        }
-
-        private string SendUriToString()
-        {
-            return $"{_fiksIoScheme}://{_fiksIoHost}:{_fiksIoPort}{SendPath}";
         }
     }
 }
