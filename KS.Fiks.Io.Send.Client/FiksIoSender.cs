@@ -69,9 +69,10 @@ namespace KS.Fiks.Io.Send.Client
         {
             var stringContent = new StringContent(JsonConvert.SerializeObject(metaData));
             stringContent.Headers.ContentType = new MediaTypeHeaderValue("application/json");
+
             var dataContent = new StreamContent(data);
 
-            var request = new MultipartFormDataContent();
+            var request = new MultipartFormDataContent(Guid.NewGuid().ToString());
             request.Add(stringContent, "metadata");
             request.Add(dataContent, "data", Guid.NewGuid().ToString());
             return request;
