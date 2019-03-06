@@ -2,10 +2,12 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
+using Ks.Fiks.Maskinporten.Client;
 using KS.Fiks.Io.Send.Client.Exceptions;
 using Moq;
 using Moq.Protected;
@@ -215,9 +217,26 @@ namespace KS.Fiks.Io.Send.Client.Tests
         public async Task ThrowsExceptionIfResponseIsNotParsable()
         {
             var sut = _fixture.WithInvalidReturnValue().CreateSut();
-            await Assert.ThrowsAsync<FiksIoParseException>(
-                async () => await sut.Send(new MessageSpecificationApiModel(), new MemoryStream())
-                                     .ConfigureAwait(false))
+            await Assert.ThrowsAsync<FiksIoSendParseException>(
+                            async () => await sut.Send(new MessageSpecificationApiModel(), new MemoryStream())
+                                                 .ConfigureAwait(false))
+                        .ConfigureAwait(false);
+        }
+
+        [Theory]
+        [InlineData(HttpStatusCode.NotFound)]
+        [InlineData(HttpStatusCode.Unauthorized)]
+        [InlineData(HttpStatusCode.InternalServerError)]
+        [InlineData(HttpStatusCode.NoContent)]
+        [InlineData(HttpStatusCode.Redirect)]
+        [InlineData(HttpStatusCode.Forbidden)]
+        public async Task ThrowsExceptionIfStatusCodeIsNot200(HttpStatusCode statusCode)
+        {
+            var sut = _fixture.WithStatusCode(statusCode).CreateSut();
+
+            await Assert.ThrowsAsync<FiksIoSendUnexpectedResponseException>(
+                            async () => await sut.Send(new MessageSpecificationApiModel(), new MemoryStream())
+                                                 .ConfigureAwait(false))
                         .ConfigureAwait(false);
         }
     }

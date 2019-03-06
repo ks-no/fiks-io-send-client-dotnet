@@ -1,8 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
+using System.Net;
 using System.Net.Http;
-using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using KS.Fiks.Io.Send.Client.Exceptions;
 using Newtonsoft.Json;
@@ -40,22 +39,16 @@ namespace KS.Fiks.Io.Send.Client
             await SetAuthorizationHeaders().ConfigureAwait(false);
 
             var response = await SendDataWithPost(metaData, data).ConfigureAwait(false);
+            await ThrowIfResponseIsInvalid(response).ConfigureAwait(false);
 
             return await DeserializeResponse(response).ConfigureAwait(false);
         }
 
-        private async Task<SentMessageApiModel> DeserializeResponse(HttpResponseMessage response)
+        private async Task SetAuthorizationHeaders()
         {
-            var responseString = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-
-            try
+            foreach (var header in await _authenticationStrategy.GetAuthorizationHeaders().ConfigureAwait(false))
             {
-                return JsonConvert.DeserializeObject<SentMessageApiModel>(responseString);
-            }
-            catch (Exception innerException)
-            {
-                throw new FiksIoParseException(
-                    $"Unable to parse response from {_fiksIoScheme}://{_fiksIoHost}:{_fiksIoPort}{SendPath}. Response: {responseString}.", innerException);
+                _httpClient.DefaultRequestHeaders.Add(header.Key, header.Value);
             }
         }
 
@@ -65,14 +58,6 @@ namespace KS.Fiks.Io.Send.Client
                                         CreateUri(),
                                         CreateRequestContent(metaData, data))
                                     .ConfigureAwait(false);
-        }
-
-        private async Task SetAuthorizationHeaders()
-        {
-            foreach (var header in await _authenticationStrategy.GetAuthorizationHeaders().ConfigureAwait(false))
-            {
-                _httpClient.DefaultRequestHeaders.Add(header.Key, header.Value);
-            }
         }
 
         private MultipartContent CreateRequestContent(MessageSpecificationApiModel metaData, Stream data)
@@ -92,6 +77,37 @@ namespace KS.Fiks.Io.Send.Client
         {
             var uriBuilder = new UriBuilder(_fiksIoScheme, _fiksIoHost, _fiksIoPort, SendPath);
             return uriBuilder.Uri;
+        }
+
+        private async Task ThrowIfResponseIsInvalid(HttpResponseMessage response)
+        {
+            if (response.StatusCode != HttpStatusCode.OK)
+            {
+                var responseString = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+                throw new FiksIoSendUnexpectedResponseException(
+                    $"Got unexpected HTTP Status code {response.StatusCode} from {SendUriToString()}. Response: {responseString}.");
+            }
+        }
+
+        private async Task<SentMessageApiModel> DeserializeResponse(HttpResponseMessage response)
+        {
+            var responseString = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+
+            try
+            {
+                return JsonConvert.DeserializeObject<SentMessageApiModel>(responseString);
+            }
+            catch (Exception innerException)
+            {
+                throw new FiksIoSendParseException(
+                    $"Unable to parse response from {SendUriToString()}. Response: {responseString}.",
+                    innerException);
+            }
+        }
+
+        private string SendUriToString()
+        {
+            return $"{_fiksIoScheme}://{_fiksIoHost}:{_fiksIoPort}{SendPath}";
         }
     }
 }
