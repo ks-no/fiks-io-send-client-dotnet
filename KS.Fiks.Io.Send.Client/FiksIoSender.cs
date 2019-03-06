@@ -75,6 +75,14 @@ namespace KS.Fiks.Io.Send.Client
             var request = new MultipartFormDataContent(Guid.NewGuid().ToString());
             request.Add(stringContent, "metadata");
             request.Add(dataContent, "data", Guid.NewGuid().ToString());
+            System.Console.WriteLine("----MultipartFromDataContent----");
+            System.Console.WriteLine("---_ Headers _---");
+
+            foreach (var header in request.Headers)
+            {
+                System.Console.WriteLine($"{header.Key}: {header.Value.FirstOrDefault()}");
+            }
+            System.Console.WriteLine("---_ Content _---");
             System.Console.WriteLine(request.ReadAsStringAsync().Result);
             return request;
         }
