@@ -69,12 +69,14 @@ namespace KS.Fiks.Io.Send.Client
 
         private MultipartFormDataContent CreateRequestContent(MessageSpecificationApiModel metaData, Stream data)
         {
-            var stringContent = new StringContent(JsonConvert.SerializeObject(metaData), Encoding.UTF8);
+            var metaDataAsJsonString = JsonConvert.SerializeObject(metaData);
+            var stringContent = new StringContent(metaDataAsJsonString, Encoding.UTF8);
             stringContent.Headers.ContentType = new MediaTypeHeaderValue("application/json");
             stringContent.Headers.ContentDisposition = new ContentDispositionHeaderValue("form-data")
             {
                 Name="metadata"
             };
+            stringContent.Headers.ContentLength = metaDataAsJsonString.Length;
 
             var dataContent = new StreamContent(data);
             dataContent.Headers.ContentDisposition = new ContentDispositionHeaderValue("form-data")
@@ -83,9 +85,12 @@ namespace KS.Fiks.Io.Send.Client
                 FileName = Guid.NewGuid().ToString()
             };
 
+            dataContent.Headers.ContentLength = data.Length;
+
             var request = new MultipartFormDataContent();
             request.Add(stringContent);
             request.Add(dataContent);
+            request.Headers.ContentLength = stringContent.Headers.ContentLength + dataContent.Headers.ContentLength;
             System.Console.WriteLine("----MultipartFromDataContent----");
             System.Console.WriteLine("---_ Headers _---");
 
