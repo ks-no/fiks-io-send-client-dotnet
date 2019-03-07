@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -71,8 +71,17 @@ namespace KS.Fiks.Io.Send.Client
         {
             var stringContent = new StringContent(JsonConvert.SerializeObject(metaData), Encoding.UTF8);
             stringContent.Headers.ContentType = new MediaTypeHeaderValue("application/json");
+            stringContent.Headers.ContentDisposition = new ContentDispositionHeaderValue("form-data")
+            {
+                Name="metadata"
+            };
 
             var dataContent = new StreamContent(data);
+            dataContent.Headers.ContentDisposition = new ContentDispositionHeaderValue("form-data")
+            {
+                Name="data",
+                FileName = "test-name"
+            };
 
             var request = new MultipartFormDataContent();
             request.Add(stringContent, "metadata");
@@ -84,8 +93,10 @@ namespace KS.Fiks.Io.Send.Client
             {
                 System.Console.WriteLine($"{header.Key}: {header.Value.FirstOrDefault()}");
             }
+
             System.Console.WriteLine("---_ Content _---");
             System.Console.WriteLine(request.ReadAsStringAsync().Result);
+
             return request;
         }
 
