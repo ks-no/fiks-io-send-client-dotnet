@@ -80,12 +80,12 @@ namespace KS.Fiks.Io.Send.Client
             dataContent.Headers.ContentDisposition = new ContentDispositionHeaderValue("form-data")
             {
                 Name="data",
-                FileName = "test-name"
+                FileName = Guid.NewGuid().ToString()
             };
 
             var request = new MultipartFormDataContent();
-            request.Add(stringContent, "metadata");
-            request.Add(dataContent, "data", Guid.NewGuid().ToString());
+            request.Add(stringContent);
+            request.Add(dataContent);
             System.Console.WriteLine("----MultipartFromDataContent----");
             System.Console.WriteLine("---_ Headers _---");
 
