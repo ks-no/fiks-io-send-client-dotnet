@@ -125,7 +125,7 @@ namespace KS.Fiks.Io.Send.Client.Tests
                 ItExpr.IsAny<CancellationToken>());
         }
         
-/*
+
         [Fact]
         public async Task SendsExpectedFile()
         {
@@ -163,7 +163,7 @@ namespace KS.Fiks.Io.Send.Client.Tests
                     Guid.TryParse(TestHelper.GetFilename(req, "data"), out tmp)),
                 ItExpr.IsAny<CancellationToken>());
         }
-*/
+
         [Fact]
         public async Task ReturnsExpectedSentMessageApiModel()
         {
