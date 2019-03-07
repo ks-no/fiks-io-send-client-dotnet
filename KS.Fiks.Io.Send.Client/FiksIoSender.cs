@@ -73,14 +73,14 @@ namespace KS.Fiks.Io.Send.Client
             stringContent.Headers.ContentType = new MediaTypeHeaderValue("application/json");
             stringContent.Headers.ContentDisposition = new ContentDispositionHeaderValue("form-data")
             {
-                Name="metadata"
+                Name="\"metadata\""
             };
 
             var dataContent = new StreamContent(data);
             dataContent.Headers.ContentDisposition = new ContentDispositionHeaderValue("form-data")
             {
-                Name="data",
-                FileName = Guid.NewGuid().ToString()
+                Name="\"data\"",
+                FileName = $"\"{Guid.NewGuid().ToString()}\""
             };
 
             var request = new MultipartFormDataContent();
