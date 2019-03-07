@@ -84,7 +84,7 @@ namespace KS.Fiks.Io.Send.Client
             };
 
             var request = new MultipartFormDataContent();
-            request.Add(stringContent);
+            //request.Add(stringContent);
             request.Add(dataContent);
             System.Console.WriteLine("----MultipartFromDataContent----");
             System.Console.WriteLine("---_ Headers _---");
