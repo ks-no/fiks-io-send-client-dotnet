@@ -1,10 +1,11 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Net.Mime;
+using System.Text;
 using System.Threading.Tasks;
 using KS.Fiks.Io.Send.Client.Exceptions;
 using Newtonsoft.Json;
@@ -68,7 +69,7 @@ namespace KS.Fiks.Io.Send.Client
 
         private MultipartFormDataContent CreateRequestContent(MessageSpecificationApiModel metaData, Stream data)
         {
-            var stringContent = new StringContent(JsonConvert.SerializeObject(metaData));
+            var stringContent = new StringContent(JsonConvert.SerializeObject(metaData), Encoding.UTF8);
             stringContent.Headers.ContentType = new MediaTypeHeaderValue("application/json");
 
             var dataContent = new StreamContent(data);
