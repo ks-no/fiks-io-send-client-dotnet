@@ -59,6 +59,7 @@ namespace KS.Fiks.Io.Send.Client
 
         private async Task<HttpResponseMessage> SendDataWithPost(MessageSpecificationApiModel metaData, Stream data)
         {
+            _httpClient.DefaultRequestHeaders.AcceptCharset.Add(new StringWithQualityHeaderValue("UTF-8"));
             return await _httpClient.PostAsync(
                                         CreateUri(),
                                         CreateRequestContent(metaData, data))
