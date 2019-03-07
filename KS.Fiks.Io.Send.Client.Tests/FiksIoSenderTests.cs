@@ -121,7 +121,7 @@ namespace KS.Fiks.Io.Send.Client.Tests
                 "SendAsync",
                 Times.Exactly(1),
                 ItExpr.Is<HttpRequestMessage>(req =>
-                    TestHelper.GetPartContent(req, "\"metadata\"").Result == serializedModel),
+                    TestHelper.GetPartContent(req, "metadata").Result == serializedModel),
                 ItExpr.IsAny<CancellationToken>());
         }
 
