@@ -73,7 +73,7 @@ namespace KS.Fiks.Io.Send.Client
             var dataContent = new StreamContent(data);
 
             var request = new MultipartFormDataContent(Guid.NewGuid().ToString());
-            request.Add(stringContent, "metadata");
+            request.Add(stringContent, "\"metadata\"");
             request.Add(dataContent, "data", Guid.NewGuid().ToString());
             System.Console.WriteLine("----MultipartFromDataContent----");
             System.Console.WriteLine("---_ Headers _---");
