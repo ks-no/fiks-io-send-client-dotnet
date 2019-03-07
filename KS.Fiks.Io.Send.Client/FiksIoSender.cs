@@ -90,7 +90,7 @@ namespace KS.Fiks.Io.Send.Client
             request.Add(dataContent);
             request.Headers.ContentEncoding.Add("UTF-8");
             request.Headers.ContentType.Parameters.Clear();
-            request.Headers.ContentType.Parameters.Add("boundary", boundary);
+            request.Headers.ContentType.Parameters.Add(new NameValueHeaderValue("boundary", boundary));
             System.Console.WriteLine("----MultipartFromDataContent----");
             System.Console.WriteLine("---_ Headers _---");
 
