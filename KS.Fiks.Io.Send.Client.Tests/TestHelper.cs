@@ -17,7 +17,7 @@ namespace KS.Fiks.Io.Send.Client.Tests
         {
             foreach (var part in GetMultipartContent(response))
             {
-                if (part.Headers.ContentDisposition.Name == $"\"{name}\"")
+                if (part.Headers.ContentDisposition.Name == name)
                 {
                     var value = await part.ReadAsStringAsync().ConfigureAwait(false);
                     return value;
@@ -31,7 +31,7 @@ namespace KS.Fiks.Io.Send.Client.Tests
         {
             foreach (var part in GetMultipartContent(response))
             {
-                if (part.Headers.ContentDisposition.Name == $"\"{name}\"")
+                if (part.Headers.ContentDisposition.Name == name)
                 {
                     return part.Headers.ContentDisposition.FileName;
                 }

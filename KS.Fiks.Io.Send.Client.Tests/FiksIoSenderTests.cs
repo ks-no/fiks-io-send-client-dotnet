@@ -143,7 +143,7 @@ namespace KS.Fiks.Io.Send.Client.Tests
                     TestHelper.GetPartContent(req, "data").Result == fileText),
                 ItExpr.IsAny<CancellationToken>());
         }
-/*
+
         [Fact]
         public async Task SendsFileWithUuidFilename()
         {
@@ -162,7 +162,7 @@ namespace KS.Fiks.Io.Send.Client.Tests
                     Guid.TryParse(TestHelper.GetFilename(req, "data"), out tmp)),
                 ItExpr.IsAny<CancellationToken>());
         }
-*/
+
         [Fact]
         public async Task ReturnsExpectedSentMessageApiModel()
         {
