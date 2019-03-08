@@ -75,9 +75,11 @@ namespace KS.Fiks.Io.Send.Client
 
             var dataContent = new StreamContent(data);
 
-            var request = new MultipartFormDataContent(boundary);
+            var request = new MultipartFormDataContent();
+            request.Headers.ContentType.Parameters.Clear();
+            request.Headers.ContentType.Parameters.Add(new NameValueHeaderValue("boundary", boundary));
             request.Add(stringContent, "metadata");
-            request.Add(dataContent, "dat", Guid.NewGuid().ToString());
+            request.Add(dataContent, "data", Guid.NewGuid().ToString());
 
             return request;
         }
