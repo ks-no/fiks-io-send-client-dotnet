@@ -60,7 +60,6 @@ namespace KS.Fiks.Io.Send.Client
 
         private async Task<HttpResponseMessage> SendDataWithPost(MessageSpecificationApiModel metaData, Stream data)
         {
-            _httpClient.DefaultRequestHeaders.AcceptCharset.Add(new StringWithQualityHeaderValue("UTF-8"));
             return await _httpClient.PostAsync(
                                         CreateUri(),
                                         CreateRequestContent(metaData, data))
@@ -73,29 +72,12 @@ namespace KS.Fiks.Io.Send.Client
 
             var stringContent = new StringContent(JsonConvert.SerializeObject(metaData), Encoding.UTF8);
             stringContent.Headers.ContentType = new MediaTypeHeaderValue("application/json");
-            stringContent.Headers.ContentDisposition = new ContentDispositionHeaderValue("form-data")
-            {
-                Name = "\"metadata\""
-            };
 
             var dataContent = new StreamContent(data);
 
             var request = new MultipartFormDataContent(boundary);
-            request.Add(stringContent);
-            request.Add(dataContent, "\"data\"", $"{Guid.NewGuid().ToString()}");
-            request.Headers.ContentEncoding.Add("UTF-8");
-            request.Headers.ContentType.Parameters.Clear();
-            request.Headers.ContentType.Parameters.Add(new NameValueHeaderValue("boundary", boundary));
-            System.Console.WriteLine("----MultipartFromDataContent----");
-            System.Console.WriteLine("---_ Headers _---");
-
-            foreach (var header in request.Headers)
-            {
-                System.Console.WriteLine($"{header.Key}: {header.Value.FirstOrDefault()}");
-            }
-
-            System.Console.WriteLine("---_ Content _---");
-            System.Console.WriteLine(request.ReadAsStringAsync().Result);
+            request.Add(stringContent, "metadata");
+            request.Add(dataContent, "dat", Guid.NewGuid().ToString());
 
             return request;
         }
