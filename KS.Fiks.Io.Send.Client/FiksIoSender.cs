@@ -82,7 +82,7 @@ namespace KS.Fiks.Io.Send.Client
             dataContent.Headers.ContentDisposition = new ContentDispositionHeaderValue("form-data")
             {
                 Name = "\"data\"",
-                FileName = Guid.NewGuid().ToString()
+                FileName = $"\"{Guid.NewGuid().ToString()}\""
             };
 
             var request = new MultipartFormDataContent(boundary);
