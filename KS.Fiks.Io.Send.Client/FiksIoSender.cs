@@ -69,19 +69,19 @@ namespace KS.Fiks.Io.Send.Client
 
         private MultipartFormDataContent CreateRequestContent(MessageSpecificationApiModel metaData, Stream data)
         {
-            var boundary = "abcde";//Guid.NewGuid().ToString();
-            
+            var boundary = Guid.NewGuid().ToString();
+
             var stringContent = new StringContent(JsonConvert.SerializeObject(metaData), Encoding.UTF8);
             stringContent.Headers.ContentType = new MediaTypeHeaderValue("application/json");
             stringContent.Headers.ContentDisposition = new ContentDispositionHeaderValue("form-data")
             {
-                Name="metadata"
+                Name = "\"metadata\""
             };
 
             var dataContent = new StreamContent(data);
             dataContent.Headers.ContentDisposition = new ContentDispositionHeaderValue("form-data")
             {
-                Name="data",
+                Name = "\"data\"",
                 FileName = Guid.NewGuid().ToString()
             };
 
@@ -101,7 +101,7 @@ namespace KS.Fiks.Io.Send.Client
 
             System.Console.WriteLine("---_ Content _---");
             System.Console.WriteLine(request.ReadAsStringAsync().Result);
-            
+
             return request;
         }
 
