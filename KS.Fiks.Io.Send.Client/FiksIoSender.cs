@@ -79,15 +79,12 @@ namespace KS.Fiks.Io.Send.Client
             };
 
             var dataContent = new StreamContent(data);
-            dataContent.Headers.ContentDisposition = new ContentDispositionHeaderValue("form-data")
-            {
-                Name = "\"data\"",
-                FileName = $"\"{Guid.NewGuid().ToString()}\""
-            };
+            dataContent.Headers.ContentDisposition = new ContentDispositionHeaderValue("form-data");
+
 
             var request = new MultipartFormDataContent(boundary);
             request.Add(stringContent);
-            request.Add(dataContent);
+            request.Add(dataContent, "\"data\"", $"\"{Guid.NewGuid().ToString()}\"");
             request.Headers.ContentEncoding.Add("UTF-8");
             request.Headers.ContentType.Parameters.Clear();
             request.Headers.ContentType.Parameters.Add(new NameValueHeaderValue("boundary", boundary));
