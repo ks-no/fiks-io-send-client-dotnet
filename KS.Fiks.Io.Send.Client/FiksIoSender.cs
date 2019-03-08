@@ -78,8 +78,8 @@ namespace KS.Fiks.Io.Send.Client
             var request = new MultipartFormDataContent();
             request.Headers.ContentType.Parameters.Clear();
             request.Headers.ContentType.Parameters.Add(new NameValueHeaderValue("boundary", boundary));
-            request.Add(stringContent, "metadata");
-            request.Add(dataContent, "data", Guid.NewGuid().ToString());
+            request.Add(stringContent, "\"metadata\"");
+            //request.Add(dataContent, "data", Guid.NewGuid().ToString());
 
             return request;
         }
