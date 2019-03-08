@@ -24,7 +24,6 @@ namespace KS.Fiks.Io.Send.Client.Tests
             _fixture = new FiksIoSenderFixture();
         }
 
-        /*
         [Fact]
         public async Task ReturnsSentMessageApiModel()
         {
@@ -33,6 +32,7 @@ namespace KS.Fiks.Io.Send.Client.Tests
 
             result.Should().BeOfType<SentMessageApiModel>();
         }
+        /*
 
         [Fact]
         public async Task SendsAPostRequestWithExpectedHost()

@@ -83,8 +83,8 @@ namespace KS.Fiks.Io.Send.Client
             var request = new MultipartFormDataContent(boundary);
             request.Add(stringContent);
             request.Add(dataContent, "\"data\"", $"\"{Guid.NewGuid().ToString()}\"");
-            request.Headers.Clear();
             request.Headers.ContentEncoding.Add("UTF-8");
+            request.Headers.ContentType.Parameters.Clear();
             request.Headers.ContentType.Parameters.Add(new NameValueHeaderValue("boundary", boundary));
             System.Console.WriteLine("----MultipartFromDataContent----");
             System.Console.WriteLine("---_ Headers _---");
