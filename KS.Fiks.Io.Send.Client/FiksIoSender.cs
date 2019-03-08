@@ -79,8 +79,6 @@ namespace KS.Fiks.Io.Send.Client
             };
 
             var dataContent = new StreamContent(data);
-            dataContent.Headers.ContentDisposition = new ContentDispositionHeaderValue("form-data");
-
 
             var request = new MultipartFormDataContent(boundary);
             request.Add(stringContent);
