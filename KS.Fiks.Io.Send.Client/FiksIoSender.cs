@@ -68,16 +68,16 @@ namespace KS.Fiks.Io.Send.Client
 
         private MultipartFormDataContent CreateRequestContent(MessageSpecificationApiModel metaData, Stream data)
         {
-            var boundary = Guid.NewGuid().ToString();
-
             var stringContent = new StringContent(JsonConvert.SerializeObject(metaData), Encoding.UTF8);
             stringContent.Headers.ContentType = new MediaTypeHeaderValue("application/json");
 
             var dataContent = new StreamContent(data);
 
-            var request = new MultipartFormDataContent(boundary);
-            request.Add(stringContent, "metadata");
-            request.Add(dataContent, "data", Guid.NewGuid().ToString());
+            var request = new MultipartFormDataContent
+            {
+                {stringContent, "metadata"},
+                {dataContent, "data", Guid.NewGuid().ToString() }
+            };
 
             return request;
         }

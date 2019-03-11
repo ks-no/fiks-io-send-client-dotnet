@@ -32,7 +32,6 @@ namespace KS.Fiks.Io.Send.Client.Tests
 
             result.Should().BeOfType<SentMessageApiModel>();
         }
-        /*
 
         [Fact]
         public async Task SendsAPostRequestWithExpectedHost()
@@ -125,7 +124,6 @@ namespace KS.Fiks.Io.Send.Client.Tests
                     TestHelper.GetPartContent(req, "metadata").Result == serializedModel),
                 ItExpr.IsAny<CancellationToken>());
         }
-        
 
         [Fact]
         public async Task SendsExpectedFile()
@@ -195,8 +193,8 @@ namespace KS.Fiks.Io.Send.Client.Tests
         {
             var authorizationHeaders = new Dictionary<string, string>
             {
-                { "AUTHORIZATION", "BEARER alkdjfhsdgkjsdhfkjsdhg" },
-                { "integrationId", "myId" }
+                {"AUTHORIZATION", "BEARER alkdjfhsdgkjsdhfkjsdhg"},
+                {"integrationId", "myId"}
             };
 
             var sut = _fixture.WithAuthorizationHeaders(authorizationHeaders).CreateSut();
@@ -251,6 +249,5 @@ namespace KS.Fiks.Io.Send.Client.Tests
                                                  .ConfigureAwait(false))
                         .ConfigureAwait(false);
         }
-        */
     }
 }

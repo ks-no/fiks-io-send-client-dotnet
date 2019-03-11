@@ -13,7 +13,7 @@
 
     <ItemGroup>
         <PackageReference Include="Newtonsoft.Json" Version="12.0.1" />
-        <PackageReference Include="KS.Fiks.QA" Version="0.9.9-dev-50" PrivateAssets="All" />
+        <PackageReference Include="KS.Fiks.QA" Version="0.9.9-dev-58" PrivateAssets="All" />
         <PackageReference Include="KS.Fiks.Maskinporten.Client" Version="0.0.4.1-dev0092" />
     </ItemGroup>
 

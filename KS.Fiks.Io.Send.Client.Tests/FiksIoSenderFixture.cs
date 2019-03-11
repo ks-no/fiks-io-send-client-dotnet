@@ -123,7 +123,7 @@ namespace KS.Fiks.Io.Send.Client.Tests
             return new StringContent(JsonConvert.SerializeObject(_returnValue));
         }
 
-        private StringContent GenerateInvalidResponse()
+        private static StringContent GenerateInvalidResponse()
         {
             return new StringContent(">DSFSV#%¤DFGHV___XCXV132<>");
         }
