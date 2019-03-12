@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Net;
@@ -17,6 +18,7 @@ namespace KS.Fiks.Io.Send.Client.Tests
         private int _fiksIoPort;
         private HttpStatusCode _statusCode;
         private SentMessageApiModel _returnValue;
+        private string _returnValueAsJson;
         private Dictionary<string, string> _authorizationHeaders;
         private bool _useInvalidReturnValue = false;
 
@@ -72,6 +74,13 @@ namespace KS.Fiks.Io.Send.Client.Tests
             return this;
         }
 
+        public FiksIoSenderFixture WithReturnValueAsJson(string value)
+        {
+            _returnValueAsJson = value;
+            return this;
+        }
+
+
         public FiksIoSenderFixture WithAuthorizationHeaders(Dictionary<string, string> value)
         {
             _authorizationHeaders = value;
@@ -86,6 +95,7 @@ namespace KS.Fiks.Io.Send.Client.Tests
 
         private void SetDefaultValues()
         {
+            _returnValueAsJson = string.Empty;
             _fiksIoHost = "test.no";
             _fiksIoScheme = "http";
             _fiksIoPort = 8084;
@@ -120,6 +130,11 @@ namespace KS.Fiks.Io.Send.Client.Tests
 
         private StringContent GenerateJsonResponse()
         {
+            if (_returnValueAsJson.Length > 0)
+            {
+                return new StringContent(_returnValueAsJson);
+            }
+
             return new StringContent(JsonConvert.SerializeObject(_returnValue));
         }
 

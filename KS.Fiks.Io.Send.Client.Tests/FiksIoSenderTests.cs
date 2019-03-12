@@ -189,6 +189,21 @@ namespace KS.Fiks.Io.Send.Client.Tests
         }
 
         [Fact]
+        public async Task ReturnsExpectedSendMessageApiModelWhenDokumentlagerIdIsNotSet()
+        {
+            var expectedResultAsJson = "{\"meldingId\":\"49d4f267-4d2d-46c4-9c0d-55b37ddff50d\"," +
+                                       "\"meldingType\":\"fiks-io-send-test\"," +
+                                       "\"avsenderKontoId\":\"a6ac54b1-6ab5-413d-8ba5-aac64bbeff08\"," +
+                                       "\"mottakerKontoId\":\"a6ac54b1-6ab5-413d-8ba5-aac64bbeff08\"," +
+                                       "\"ttl\":3434,\"dokumentlagerId\":null," +
+                                       "\"svarPaMelding\":\"38bc7d50-08e1-4cb6-b2b1-7b9805ca8def\"}";
+
+            var sut = _fixture.WithReturnValueAsJson(expectedResultAsJson).CreateSut();
+            var result = await sut.Send(new MessageSpecificationApiModel(), new MemoryStream()).ConfigureAwait(false);
+
+        }
+
+        [Fact]
         public async Task SetsAuthenticationHeaders()
         {
             var authorizationHeaders = new Dictionary<string, string>
