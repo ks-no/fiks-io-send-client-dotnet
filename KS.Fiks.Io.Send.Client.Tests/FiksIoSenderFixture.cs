@@ -89,7 +89,7 @@ namespace KS.Fiks.Io.Send.Client.Tests
             _fiksIoHost = "test.no";
             _fiksIoScheme = "http";
             _fiksIoPort = 8084;
-            _statusCode = HttpStatusCode.OK;
+            _statusCode = HttpStatusCode.Accepted;
             _returnValue = new SentMessageApiModel();
             _authorizationHeaders = new Dictionary<string, string>();
         }

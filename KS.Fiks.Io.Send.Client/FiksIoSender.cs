@@ -100,7 +100,7 @@ namespace KS.Fiks.Io.Send.Client
 
         private async Task ThrowIfResponseIsInvalid(HttpResponseMessage response)
         {
-            if (response.StatusCode != HttpStatusCode.OK)
+            if (response.StatusCode != HttpStatusCode.Accepted)
             {
                 var responseString = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
                 throw new FiksIoSendUnexpectedResponseException(

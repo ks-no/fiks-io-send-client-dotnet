@@ -229,7 +229,8 @@ namespace KS.Fiks.Io.Send.Client.Tests
         [InlineData(HttpStatusCode.Redirect)]
         [InlineData(HttpStatusCode.Forbidden)]
         [InlineData(HttpStatusCode.UnavailableForLegalReasons)]
-        public async Task ThrowsExceptionIfStatusCodeIsNot200(HttpStatusCode statusCode)
+        [InlineData(HttpStatusCode.OK)]
+        public async Task ThrowsExceptionIfStatusCodeIsNot202(HttpStatusCode statusCode)
         {
             var sut = _fixture.WithStatusCode(statusCode).CreateSut();
 
