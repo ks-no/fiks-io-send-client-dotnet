@@ -7,35 +7,41 @@ using System.Net.Http.Headers;
 using System.Net.Mime;
 using System.Text;
 using System.Threading.Tasks;
-using KS.Fiks.Io.Send.Client.Exceptions;
+using KS.Fiks.IO.Send.Client.Configuration;
+using KS.Fiks.IO.Send.Client.Exceptions;
+using Ks.Fiks.Maskinporten.Client;
 using Newtonsoft.Json;
 
-namespace KS.Fiks.Io.Send.Client
+namespace KS.Fiks.IO.Send.Client
 {
-    public class FiksIoSender : IFiksIOSender
+    public class FiksIOSender : IFiksIOSender
     {
-        private const string BasePath = "/svarinn2/api/v1";
-        private const string SendPath = BasePath + "/send";
-
-        private readonly string _fiksIoScheme;
-        private readonly string _fiksIoHost;
-        private readonly int _fiksIoPort;
+        private readonly FiksIOSenderConfiguration _configuration;
         private readonly HttpClient _httpClient;
 
-        private IAuthenticationStrategy _authenticationStrategy;
+        private readonly IAuthenticationStrategy _authenticationStrategy;
 
-        public FiksIoSender(
-            string fiksIoScheme,
-            string fiksIoHost,
-            int fiksIoPort,
+        public FiksIOSender(
+            FiksIOSenderConfiguration configuration,
             IAuthenticationStrategy authenticationStrategy,
             HttpClient httpClient = null)
         {
-            _fiksIoScheme = fiksIoScheme;
-            _fiksIoHost = fiksIoHost;
-            _fiksIoPort = fiksIoPort;
+            _configuration = configuration;
             _authenticationStrategy = authenticationStrategy;
             _httpClient = httpClient ?? new HttpClient();
+        }
+
+        public FiksIOSender(
+            FiksIOSenderConfiguration configuration,
+            IMaskinportenClient maskinportenClient,
+            Guid integrastionId,
+            string integrationPassword,
+            HttpClient httpClient = null)
+            : this(
+                configuration,
+                new IntegrasjonAuthenticationStrategy(maskinportenClient, integrastionId, integrationPassword),
+                httpClient)
+        {
         }
 
         public async Task<SentMessageApiModel> Send(MessageSpecificationApiModel metaData, Stream data)
@@ -84,7 +90,11 @@ namespace KS.Fiks.Io.Send.Client
 
         private Uri CreateUri()
         {
-            var uriBuilder = new UriBuilder(_fiksIoScheme, _fiksIoHost, _fiksIoPort, SendPath);
+            var uriBuilder = new UriBuilder(
+                _configuration.Scheme,
+                _configuration.Host,
+                _configuration.Port,
+                _configuration.Path);
             return uriBuilder.Uri;
         }
 
@@ -93,7 +103,7 @@ namespace KS.Fiks.Io.Send.Client
             if (response.StatusCode == HttpStatusCode.Unauthorized)
             {
                 var responseString = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-                throw new FiksIoSendUnauthorizedException(
+                throw new FiksIOSendUnauthorizedException(
                     $"Got response Unauthorized (401) from {CreateUri()}. Response: {responseString}.");
             }
         }
@@ -103,7 +113,7 @@ namespace KS.Fiks.Io.Send.Client
             if (response.StatusCode != HttpStatusCode.Accepted)
             {
                 var responseString = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-                throw new FiksIoSendUnexpectedResponseException(
+                throw new FiksIOSendUnexpectedResponseException(
                     $"Got unexpected HTTP Status code {response.StatusCode} from {CreateUri()}. Response: {responseString}.");
             }
         }
@@ -118,7 +128,7 @@ namespace KS.Fiks.Io.Send.Client
             }
             catch (Exception innerException)
             {
-                throw new FiksIoSendParseException(
+                throw new FiksIOSendParseException(
                     $"Unable to parse response from {CreateUri()}. Response: {responseString}.",
                     innerException);
             }

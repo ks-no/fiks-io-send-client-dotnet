@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Ks.Fiks.Maskinporten.Client;
 
-namespace KS.Fiks.Io.Send.Client
+namespace KS.Fiks.IO.Send.Client
 {
     public class IntegrasjonAuthenticationStrategy : IAuthenticationStrategy
     {

@@ -4,7 +4,7 @@ using FluentAssertions;
 using Moq;
 using Xunit;
 
-namespace KS.Fiks.Io.Send.Client.Tests
+namespace KS.Fiks.IO.Send.Client.Tests
 {
     public class IntegrasjonAuthenticationStrategyTests
     {

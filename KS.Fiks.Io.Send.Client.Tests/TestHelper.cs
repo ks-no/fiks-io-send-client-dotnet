@@ -4,7 +4,7 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
 
-namespace KS.Fiks.Io.Send.Client.Tests
+namespace KS.Fiks.IO.Send.Client.Tests
 {
     public static class TestHelper
     {

@@ -7,21 +7,21 @@ using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
-using KS.Fiks.Io.Send.Client.Exceptions;
+using KS.Fiks.IO.Send.Client.Exceptions;
 using Moq;
 using Moq.Protected;
 using Newtonsoft.Json;
 using Xunit;
 
-namespace KS.Fiks.Io.Send.Client.Tests
+namespace KS.Fiks.IO.Send.Client.Tests
 {
-    public class FiksIoSenderTests
+    public class FiksIOSenderTests
     {
-        private readonly FiksIoSenderFixture _fixture;
+        private readonly FiksIOSenderFixture _fixture;
 
-        public FiksIoSenderTests()
+        public FiksIOSenderTests()
         {
-            _fixture = new FiksIoSenderFixture();
+            _fixture = new FiksIOSenderFixture();
         }
 
         [Fact]
@@ -89,7 +89,7 @@ namespace KS.Fiks.Io.Send.Client.Tests
         {
             var expectedRequestPath = "/svarinn2/api/v1/send";
 
-            var sut = _fixture.CreateSut();
+            var sut = _fixture.WithPath(expectedRequestPath).CreateSut();
 
             var result = await sut.Send(new MessageSpecificationApiModel(), new MemoryStream()).ConfigureAwait(false);
 
@@ -200,7 +200,6 @@ namespace KS.Fiks.Io.Send.Client.Tests
 
             var sut = _fixture.WithReturnValueAsJson(expectedResultAsJson).CreateSut();
             var result = await sut.Send(new MessageSpecificationApiModel(), new MemoryStream()).ConfigureAwait(false);
-
         }
 
         [Fact]
@@ -231,7 +230,7 @@ namespace KS.Fiks.Io.Send.Client.Tests
         public async Task ThrowsExceptionIfResponseIsNotParsable()
         {
             var sut = _fixture.WithInvalidReturnValue().CreateSut();
-            await Assert.ThrowsAsync<FiksIoSendParseException>(
+            await Assert.ThrowsAsync<FiksIOSendParseException>(
                             async () => await sut.Send(new MessageSpecificationApiModel(), new MemoryStream())
                                                  .ConfigureAwait(false))
                         .ConfigureAwait(false);
@@ -249,7 +248,7 @@ namespace KS.Fiks.Io.Send.Client.Tests
         {
             var sut = _fixture.WithStatusCode(statusCode).CreateSut();
 
-            await Assert.ThrowsAsync<FiksIoSendUnexpectedResponseException>(
+            await Assert.ThrowsAsync<FiksIOSendUnexpectedResponseException>(
                             async () => await sut.Send(new MessageSpecificationApiModel(), new MemoryStream())
                                                  .ConfigureAwait(false))
                         .ConfigureAwait(false);
@@ -260,7 +259,7 @@ namespace KS.Fiks.Io.Send.Client.Tests
         {
             var sut = _fixture.WithStatusCode(HttpStatusCode.Unauthorized).CreateSut();
 
-            await Assert.ThrowsAsync<FiksIoSendUnauthorizedException>(
+            await Assert.ThrowsAsync<FiksIOSendUnauthorizedException>(
                             async () => await sut.Send(new MessageSpecificationApiModel(), new MemoryStream())
                                                  .ConfigureAwait(false))
                         .ConfigureAwait(false);

@@ -2,7 +2,7 @@ using System;
 using Ks.Fiks.Maskinporten.Client;
 using Moq;
 
-namespace KS.Fiks.Io.Send.Client.Tests
+namespace KS.Fiks.IO.Send.Client.Tests
 {
     public class IntegrasjonAuthenticationStrategyFixture
     {

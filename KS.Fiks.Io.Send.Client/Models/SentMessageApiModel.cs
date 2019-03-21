@@ -2,7 +2,7 @@ using System;
 using System.ComponentModel;
 using Newtonsoft.Json;
 
-namespace KS.Fiks.Io.Send.Client
+namespace KS.Fiks.IO.Send.Client
 {
     public class SentMessageApiModel
     {

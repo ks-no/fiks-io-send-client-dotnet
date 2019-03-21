@@ -1,7 +1,7 @@
 using System.IO;
 using System.Threading.Tasks;
 
-namespace KS.Fiks.Io.Send.Client
+namespace KS.Fiks.IO.Send.Client
 {
     public interface IFiksIOSender
     {
