@@ -2,20 +2,21 @@ using System;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
 namespace KS.Fiks.IO.Send.Client.Tests
 {
     public static class TestHelper
     {
-        public static MultipartFormDataContent GetMultipartContent(HttpRequestMessage response)
+        public static MultipartFormDataContent GetMultipartContent(HttpRequestMessage request)
         {
-            return response.Content as MultipartFormDataContent;
+            return request.Content as MultipartFormDataContent;
         }
 
-        public static async Task<string> GetPartContent(HttpRequestMessage response, string name)
+        public static async Task<string> GetPartContent(HttpRequestMessage request, string name)
         {
-            foreach (var part in GetMultipartContent(response))
+            foreach (var part in GetMultipartContent(request))
             {
                 if (part.Headers.ContentDisposition.Name == name)
                 {
@@ -24,12 +25,12 @@ namespace KS.Fiks.IO.Send.Client.Tests
                 }
             }
 
-            throw new Exception("Could not find content");
+            throw new Exception($"Could not find content: {name}");
         }
 
-        public static string GetFilename(HttpRequestMessage response, string name)
+        public static string GetFilename(HttpRequestMessage request, string name)
         {
-            foreach (var part in GetMultipartContent(response))
+            foreach (var part in GetMultipartContent(request))
             {
                 if (part.Headers.ContentDisposition.Name == name)
                 {
@@ -37,7 +38,7 @@ namespace KS.Fiks.IO.Send.Client.Tests
                 }
             }
 
-            throw new Exception("Could not find header");
+            throw new Exception($"Could not find header: {name}");
         }
     }
 }

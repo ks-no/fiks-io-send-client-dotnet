@@ -46,8 +46,6 @@ namespace KS.Fiks.IO.Send.Client
 
         public async Task<SentMessageApiModel> Send(MessageSpecificationApiModel metaData, Stream data)
         {
-            await SetAuthorizationHeaders().ConfigureAwait(false);
-
             var response = await SendDataWithPost(metaData, data).ConfigureAwait(false);
 
             await ThrowIfUnauthorized(response).ConfigureAwait(false);
@@ -56,20 +54,18 @@ namespace KS.Fiks.IO.Send.Client
             return await DeserializeResponse(response).ConfigureAwait(false);
         }
 
-        private async Task SetAuthorizationHeaders()
-        {
-            foreach (var header in await _authenticationStrategy.GetAuthorizationHeaders().ConfigureAwait(false))
-            {
-                _httpClient.DefaultRequestHeaders.Add(header.Key, header.Value);
-            }
-        }
-
         private async Task<HttpResponseMessage> SendDataWithPost(MessageSpecificationApiModel metaData, Stream data)
         {
-            return await _httpClient.PostAsync(
-                                        CreateUri(),
-                                        CreateRequestContent(metaData, data))
-                                    .ConfigureAwait(false);
+            var requestMessage = new HttpRequestMessage(HttpMethod.Post, CreateUri());
+            foreach (var (key, value) in await _authenticationStrategy
+                                               .GetAuthorizationHeaders().ConfigureAwait(false))
+            {
+                requestMessage.Headers.Add(key, value);
+            }
+
+            requestMessage.Content = CreateRequestContent(metaData, data);
+
+            return await _httpClient.SendAsync(requestMessage).ConfigureAwait(false);
         }
 
         private MultipartFormDataContent CreateRequestContent(MessageSpecificationApiModel metaData, Stream data)
@@ -82,7 +78,7 @@ namespace KS.Fiks.IO.Send.Client
             var request = new MultipartFormDataContent
             {
                 {stringContent, "metadata"},
-                {dataContent, "data", Guid.NewGuid().ToString() }
+                {dataContent, "data", Guid.NewGuid().ToString()}
             };
 
             return request;
