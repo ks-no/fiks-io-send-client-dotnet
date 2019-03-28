@@ -7,16 +7,16 @@ namespace KS.Fiks.IO.Send.Client
     public class SentMessageApiModel
     {
         [JsonProperty("meldingId")]
-        public Guid? MeldingId { get; set; }
+        public Guid MeldingId { get; set; }
 
         [JsonProperty("meldingType")]
         public string MeldingType { get; set; }
 
         [JsonProperty("avsenderKontoId")]
-        public Guid? AvsenderKontoId { get; set; }
+        public Guid AvsenderKontoId { get; set; }
 
         [JsonProperty("mottakerKontoId")]
-        public Guid? MottakerKontoId { get; set; }
+        public Guid MottakerKontoId { get; set; }
 
         [JsonProperty("ttl")]
         public long Ttl { get; set; }
