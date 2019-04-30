@@ -130,18 +130,21 @@ namespace KS.Fiks.IO.Send.Client.Tests
         {
             var sut = _fixture.CreateSut();
 
-            var memoryStream = new FileStream("./testfile.txt", FileMode.Open);
+            using (var memoryStream = new FileStream("./testfile.txt", FileMode.Open))
+            {
 
-            var fileText = File.ReadAllText("./testfile.txt");
+                var fileText = File.ReadAllText("./testfile.txt");
 
-            var result = await sut.Send(new MessageSpecificationApiModel(), memoryStream).ConfigureAwait(false);
+                var result = await sut.Send(new MessageSpecificationApiModel(), memoryStream).ConfigureAwait(false);
 
-            _fixture.HttpMessageHandleMock.Protected().Verify(
-                "SendAsync",
-                Times.Exactly(1),
-                ItExpr.Is<HttpRequestMessage>(req =>
-                    TestHelper.GetPartContent(req, "data").Result == fileText),
-                ItExpr.IsAny<CancellationToken>());
+
+                _fixture.HttpMessageHandleMock.Protected().Verify(
+                    "SendAsync",
+                    Times.Exactly(1),
+                    ItExpr.Is<HttpRequestMessage>(req =>
+                        TestHelper.GetPartContent(req, "data").Result == fileText),
+                    ItExpr.IsAny<CancellationToken>());
+            }
         }
 
         [Fact]
@@ -149,18 +152,20 @@ namespace KS.Fiks.IO.Send.Client.Tests
         {
             var sut = _fixture.CreateSut();
 
-            var memoryStream = new FileStream("./testfile.txt", FileMode.Open);
+            using (var memoryStream = new FileStream("./testfile.txt", FileMode.Open))
+            {
 
-            var result = await sut.Send(new MessageSpecificationApiModel(), memoryStream).ConfigureAwait(false);
+                var result = await sut.Send(new MessageSpecificationApiModel(), memoryStream).ConfigureAwait(false);
 
-            Guid tmp;
+                Guid tmp;
 
-            _fixture.HttpMessageHandleMock.Protected().Verify(
-                "SendAsync",
-                Times.Exactly(1),
-                ItExpr.Is<HttpRequestMessage>(req =>
-                    Guid.TryParse(TestHelper.GetFilename(req, "data"), out tmp)),
-                ItExpr.IsAny<CancellationToken>());
+                _fixture.HttpMessageHandleMock.Protected().Verify(
+                    "SendAsync",
+                    Times.Exactly(1),
+                    ItExpr.Is<HttpRequestMessage>(req =>
+                        Guid.TryParse(TestHelper.GetFilename(req, "data"), out tmp)),
+                    ItExpr.IsAny<CancellationToken>());
+            }
         }
 
         [Fact]
