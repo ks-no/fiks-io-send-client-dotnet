@@ -57,10 +57,10 @@ namespace KS.Fiks.IO.Send.Client
         private async Task<HttpResponseMessage> SendDataWithPost(MessageSpecificationApiModel metaData, Stream data)
         {
             var requestMessage = new HttpRequestMessage(HttpMethod.Post, CreateUri());
-            foreach (var (key, value) in await _authenticationStrategy
+            foreach (var keyValuePair in await _authenticationStrategy
                                                .GetAuthorizationHeaders().ConfigureAwait(false))
             {
-                requestMessage.Headers.Add(key, value);
+                requestMessage.Headers.Add(keyValuePair.Key, keyValuePair.Value);
             }
 
             requestMessage.Content = CreateRequestContent(metaData, data);

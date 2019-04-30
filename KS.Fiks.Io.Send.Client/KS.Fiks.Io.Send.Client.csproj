@@ -1,20 +1,27 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>netcoreapp2.2</TargetFramework>
-        <RootNamespace>KS.Fiks.IO.Send.Client</RootNamespace>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-        <PackageId>KS.Fiks.IO.Send.Client</PackageId>
-        <VersionPrefix>0.0.3</VersionPrefix>
-        <Authors>KS DotNet Team</Authors>
-        <Copyright>© KS 2019</Copyright>
-        <Title>Library for sending files with fiks IO</Title>
+        <Title>KS FIKS IO Send Client</Title>
+        <Authors>Ks-Kommunesektorens Organisasjon</Authors>
+        <Copyright>Ks-Kommunesektorens Organisasjon</Copyright>
+        <RootNamespace>KS.Fiks.IO.Send.Client</RootNamespace>
+        <PackageProjectUrl>https://github.com/ks-no/fiks-io-send-client-dotnet</PackageProjectUrl>
+        <PackageLicenseUrl>https://github.com/ks-no/fiks-io-send-client-dotnet/raw/master/LICENSE</PackageLicenseUrl>
+        <RepositoryUrl>https://github.com/ks-no/fiks-io-send-client-dotnet.git</RepositoryUrl>
+        <RepositoryType>git</RepositoryType>
+        <PackageTags>FIKS</PackageTags>
+        <VersionPrefix>0.0.4</VersionPrefix>
+        <PackageIconUrl>https://ks-no.github.io/images/favicon.png</PackageIconUrl>
+        <TargetFrameworks>netstandard2.0;netcoreapp2.2</TargetFrameworks>
+        <IncludeSymbols>true</IncludeSymbols>
+        <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Newtonsoft.Json" Version="12.0.1" />
+        <PackageReference Include="Newtonsoft.Json" Version="12.0.2" />
         <PackageReference Include="KS.Fiks.QA" Version="0.9.9-dev-63" PrivateAssets="All" />
-        <PackageReference Include="KS.Fiks.Maskinporten.Client" Version="0.0.5-dev-85" />
+        <PackageReference Include="KS.Fiks.Maskinporten.Client" Version="0.0.6-build.20190430130548213" />
     </ItemGroup>
 
 </Project>
