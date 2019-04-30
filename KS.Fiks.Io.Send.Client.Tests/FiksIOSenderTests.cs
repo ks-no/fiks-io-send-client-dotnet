@@ -129,11 +129,11 @@ namespace KS.Fiks.IO.Send.Client.Tests
         public async Task SendsExpectedFile()
         {
             var sut = _fixture.CreateSut();
+            
+            var fileText = File.ReadAllText("./testfile.txt");
 
             using (var memoryStream = new FileStream("./testfile.txt", FileMode.Open))
             {
-
-                var fileText = File.ReadAllText("./testfile.txt");
 
                 var result = await sut.Send(new MessageSpecificationApiModel(), memoryStream).ConfigureAwait(false);
 
