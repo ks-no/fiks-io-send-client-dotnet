@@ -30,7 +30,7 @@ namespace KS.Fiks.IO.Send.Client.Tests
         public async Task ReturnsSentMessageApiModel()
         {
             var sut = _fixture.CreateSut();
-            var result = await sut.Send(new MessageSpecificationApiModel(), new MemoryStream()).ConfigureAwait(false);
+            var result = await sut.Send(_fixture.DefaultMessage, new MemoryStream()).ConfigureAwait(false);
 
             result.Should().BeOfType<SentMessageApiModel>();
         }
@@ -42,7 +42,7 @@ namespace KS.Fiks.IO.Send.Client.Tests
 
             var sut = _fixture.WithHost(host).CreateSut();
 
-            var result = await sut.Send(new MessageSpecificationApiModel(), new MemoryStream()).ConfigureAwait(false);
+            var result = await sut.Send(_fixture.DefaultMessage, new MemoryStream()).ConfigureAwait(false);
 
             _fixture.HttpMessageHandleMock.Protected().Verify(
                 "SendAsync",
@@ -59,7 +59,7 @@ namespace KS.Fiks.IO.Send.Client.Tests
 
             var sut = _fixture.WithPort(port).CreateSut();
 
-            var result = await sut.Send(new MessageSpecificationApiModel(), new MemoryStream()).ConfigureAwait(false);
+            var result = await sut.Send(_fixture.DefaultMessage, new MemoryStream()).ConfigureAwait(false);
 
             _fixture.HttpMessageHandleMock.Protected().Verify(
                 "SendAsync",
@@ -76,7 +76,7 @@ namespace KS.Fiks.IO.Send.Client.Tests
 
             var sut = _fixture.WithScheme(scheme).CreateSut();
 
-            var result = await sut.Send(new MessageSpecificationApiModel(), new MemoryStream()).ConfigureAwait(false);
+            var result = await sut.Send(_fixture.DefaultMessage, new MemoryStream()).ConfigureAwait(false);
 
             _fixture.HttpMessageHandleMock.Protected().Verify(
                 "SendAsync",
@@ -93,7 +93,7 @@ namespace KS.Fiks.IO.Send.Client.Tests
 
             var sut = _fixture.WithPath(expectedRequestPath).CreateSut();
 
-            var result = await sut.Send(new MessageSpecificationApiModel(), new MemoryStream()).ConfigureAwait(false);
+            var result = await sut.Send(_fixture.DefaultMessage, new MemoryStream()).ConfigureAwait(false);
 
             _fixture.HttpMessageHandleMock.Protected().Verify(
                 "SendAsync",
@@ -108,13 +108,12 @@ namespace KS.Fiks.IO.Send.Client.Tests
         {
             var sut = _fixture.CreateSut();
 
-            var model = new MessageSpecificationApiModel
-            {
-                SenderAccountId = Guid.NewGuid(),
-                ReceiverAccountId = Guid.NewGuid(),
-                RelatedMessageId = Guid.NewGuid(),
-                Ttl = 100
-            };
+            var model = new MessageSpecificationApiModel(
+                Guid.NewGuid(),
+                Guid.NewGuid(),
+                "messageType",
+                100,
+                Guid.NewGuid());
             var serializedModel = JsonConvert.SerializeObject(model);
             var result = await sut.Send(model, new MemoryStream()).ConfigureAwait(false);
 
@@ -135,7 +134,7 @@ namespace KS.Fiks.IO.Send.Client.Tests
 
             using (var memoryStream = new MemoryStream(Encoding.ASCII.GetBytes(text)))
             {
-                var result = await sut.Send(new MessageSpecificationApiModel(), memoryStream).ConfigureAwait(false);
+                var result = await sut.Send(_fixture.DefaultMessage, memoryStream).ConfigureAwait(false);
 
                 _fixture.HttpMessageHandleMock.Protected().Verify(
                     "SendAsync",
@@ -156,7 +155,7 @@ namespace KS.Fiks.IO.Send.Client.Tests
             using (var memoryStream = new FileStream("./testfile.txt", FileMode.Open))
             {
 
-                var result = await sut.Send(new MessageSpecificationApiModel(), memoryStream).ConfigureAwait(false);
+                var result = await sut.Send(_fixture.DefaultMessage, memoryStream).ConfigureAwait(false);
 
 
                 _fixture.HttpMessageHandleMock.Protected().Verify(
@@ -176,7 +175,7 @@ namespace KS.Fiks.IO.Send.Client.Tests
             using (var memoryStream = new FileStream("./testfile.txt", FileMode.Open))
             {
 
-                var result = await sut.Send(new MessageSpecificationApiModel(), memoryStream).ConfigureAwait(false);
+                var result = await sut.Send(_fixture.DefaultMessage, memoryStream).ConfigureAwait(false);
 
                 Guid tmp;
 
@@ -204,7 +203,7 @@ namespace KS.Fiks.IO.Send.Client.Tests
             };
 
             var sut = _fixture.WithReturnValue(expectedResult).CreateSut();
-            var result = await sut.Send(new MessageSpecificationApiModel(), new MemoryStream()).ConfigureAwait(false);
+            var result = await sut.Send(_fixture.DefaultMessage, new MemoryStream()).ConfigureAwait(false);
             result.MessageId.Should().Be(expectedResult.MessageId);
             result.MessageType.Should().Be(expectedResult.MessageType);
             result.SenderAccountId.Should().Be(expectedResult.SenderAccountId);
@@ -225,7 +224,7 @@ namespace KS.Fiks.IO.Send.Client.Tests
                                        "\"svarPaMelding\":\"38bc7d50-08e1-4cb6-b2b1-7b9805ca8def\"}";
 
             var sut = _fixture.WithReturnValueAsJson(expectedResultAsJson).CreateSut();
-            var result = await sut.Send(new MessageSpecificationApiModel(), new MemoryStream()).ConfigureAwait(false);
+            var result = await sut.Send(_fixture.DefaultMessage, new MemoryStream()).ConfigureAwait(false);
         }
 
         [Fact]
@@ -239,7 +238,7 @@ namespace KS.Fiks.IO.Send.Client.Tests
 
             var sut = _fixture.WithAuthorizationHeaders(authorizationHeaders).CreateSut();
 
-            var result = await sut.Send(new MessageSpecificationApiModel(), new MemoryStream()).ConfigureAwait(false);
+            var result = await sut.Send(_fixture.DefaultMessage, new MemoryStream()).ConfigureAwait(false);
 
             _fixture.HttpMessageHandleMock.Protected().Verify(
                 "SendAsync",
@@ -257,7 +256,7 @@ namespace KS.Fiks.IO.Send.Client.Tests
         {
             var sut = _fixture.WithInvalidReturnValue().CreateSut();
             await Assert.ThrowsAsync<FiksIOSendParseException>(
-                            async () => await sut.Send(new MessageSpecificationApiModel(), new MemoryStream())
+                            async () => await sut.Send(_fixture.DefaultMessage, new MemoryStream())
                                                  .ConfigureAwait(false))
                         .ConfigureAwait(false);
         }
@@ -275,7 +274,7 @@ namespace KS.Fiks.IO.Send.Client.Tests
             var sut = _fixture.WithStatusCode(statusCode).CreateSut();
 
             await Assert.ThrowsAsync<FiksIOSendUnexpectedResponseException>(
-                            async () => await sut.Send(new MessageSpecificationApiModel(), new MemoryStream())
+                            async () => await sut.Send(_fixture.DefaultMessage, new MemoryStream())
                                                  .ConfigureAwait(false))
                         .ConfigureAwait(false);
         }
@@ -286,7 +285,7 @@ namespace KS.Fiks.IO.Send.Client.Tests
             var sut = _fixture.WithStatusCode(HttpStatusCode.Unauthorized).CreateSut();
 
             await Assert.ThrowsAsync<FiksIOSendUnauthorizedException>(
-                            async () => await sut.Send(new MessageSpecificationApiModel(), new MemoryStream())
+                            async () => await sut.Send(_fixture.DefaultMessage, new MemoryStream())
                                                  .ConfigureAwait(false))
                         .ConfigureAwait(false);
         }

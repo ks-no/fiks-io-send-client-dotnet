@@ -37,6 +37,9 @@ namespace KS.Fiks.IO.Send.Client.Tests
 
         public Mock<HttpMessageHandler> HttpMessageHandleMock { get; }
 
+        public MessageSpecificationApiModel DefaultMessage =>
+            new MessageSpecificationApiModel(Guid.NewGuid(), Guid.NewGuid(), "defaultType", 100, null);
+
         public FiksIOSender CreateSut()
         {
             SetupMocks();
