@@ -1,4 +1,5 @@
 using System;
+using KS.Fiks.IO.Send.Client.Authentication;
 using Ks.Fiks.Maskinporten.Client;
 using Moq;
 

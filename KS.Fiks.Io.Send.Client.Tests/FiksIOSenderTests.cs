@@ -9,6 +9,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using KS.Fiks.IO.Send.Client.Exceptions;
+using KS.Fiks.IO.Send.Client.Models;
 using Moq;
 using Moq.Protected;
 using Newtonsoft.Json;
@@ -109,9 +110,9 @@ namespace KS.Fiks.IO.Send.Client.Tests
 
             var model = new MessageSpecificationApiModel
             {
-                AvsenderKontoId = Guid.NewGuid(),
-                MottakerKontoId = Guid.NewGuid(),
-                SvarPaMelding = Guid.NewGuid(),
+                SenderAccountId = Guid.NewGuid(),
+                ReceiverAccountId = Guid.NewGuid(),
+                RelatedMessageId = Guid.NewGuid(),
                 Ttl = 100
             };
             var serializedModel = JsonConvert.SerializeObject(model);

@@ -1,5 +1,6 @@
 using System.IO;
 using System.Threading.Tasks;
+using KS.Fiks.IO.Send.Client.Models;
 
 namespace KS.Fiks.IO.Send.Client
 {

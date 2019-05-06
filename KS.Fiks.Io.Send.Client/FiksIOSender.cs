@@ -7,8 +7,10 @@ using System.Net.Http.Headers;
 using System.Net.Mime;
 using System.Text;
 using System.Threading.Tasks;
+using KS.Fiks.IO.Send.Client.Authentication;
 using KS.Fiks.IO.Send.Client.Configuration;
 using KS.Fiks.IO.Send.Client.Exceptions;
+using KS.Fiks.IO.Send.Client.Models;
 using Ks.Fiks.Maskinporten.Client;
 using Newtonsoft.Json;
 

@@ -1,18 +1,18 @@
 using System;
 using Newtonsoft.Json;
 
-namespace KS.Fiks.IO.Send.Client
+namespace KS.Fiks.IO.Send.Client.Models
 {
     public class MessageSpecificationApiModel
     {
         [JsonProperty("avsenderKontoId")]
-        public Guid AvsenderKontoId { get; set; }
+        public Guid SenderAccountId { get; set; }
 
         [JsonProperty("mottakerKontoId")]
-        public Guid MottakerKontoId { get; set; }
+        public Guid ReceiverAccountId { get; set; }
 
         [JsonProperty("svarPaMelding")]
-        public Guid SvarPaMelding { get; set; }
+        public Guid RelatedMessageId { get; set; }
 
         [JsonProperty("ttl")]
         public long Ttl { get; set; }

@@ -1,8 +1,7 @@
 using System.Collections.Generic;
-using System.Net.Http;
 using System.Threading.Tasks;
 
-namespace KS.Fiks.IO.Send.Client
+namespace KS.Fiks.IO.Send.Client.Authentication
 {
     public interface IAuthenticationStrategy
     {
