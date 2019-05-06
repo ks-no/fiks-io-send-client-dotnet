@@ -194,24 +194,24 @@ namespace KS.Fiks.IO.Send.Client.Tests
         {
             var expectedResult = new SentMessageApiModel
             {
-                MeldingId = Guid.NewGuid(),
-                MeldingType = "type",
-                AvsenderKontoId = Guid.NewGuid(),
-                MottakerKontoId = Guid.NewGuid(),
+                MessageId = Guid.NewGuid(),
+                MessageType = "type",
+                SenderAccountId = Guid.NewGuid(),
+                ReceiverAccountId = Guid.NewGuid(),
                 Ttl = 10,
                 DokumentlagerId = Guid.NewGuid(),
-                SvarPaMelding = Guid.NewGuid()
+                RelatedMessageId = Guid.NewGuid()
             };
 
             var sut = _fixture.WithReturnValue(expectedResult).CreateSut();
             var result = await sut.Send(new MessageSpecificationApiModel(), new MemoryStream()).ConfigureAwait(false);
-            result.MeldingId.Should().Be(expectedResult.MeldingId);
-            result.MeldingType.Should().Be(expectedResult.MeldingType);
-            result.AvsenderKontoId.Should().Be(expectedResult.AvsenderKontoId);
-            result.MottakerKontoId.Should().Be(expectedResult.MottakerKontoId);
+            result.MessageId.Should().Be(expectedResult.MessageId);
+            result.MessageType.Should().Be(expectedResult.MessageType);
+            result.SenderAccountId.Should().Be(expectedResult.SenderAccountId);
+            result.ReceiverAccountId.Should().Be(expectedResult.ReceiverAccountId);
             result.Ttl.Should().Be(expectedResult.Ttl);
             result.DokumentlagerId.Should().Be(expectedResult.DokumentlagerId);
-            result.SvarPaMelding.Should().Be(expectedResult.SvarPaMelding);
+            result.RelatedMessageId.Should().Be(expectedResult.RelatedMessageId);
         }
 
         [Fact]

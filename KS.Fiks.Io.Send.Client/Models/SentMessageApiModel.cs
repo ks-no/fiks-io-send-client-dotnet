@@ -6,16 +6,16 @@ namespace KS.Fiks.IO.Send.Client.Models
     public class SentMessageApiModel
     {
         [JsonProperty("meldingId")]
-        public Guid MeldingId { get; set; }
+        public Guid MessageId { get; set; }
 
         [JsonProperty("meldingType")]
-        public string MeldingType { get; set; }
+        public string MessageType { get; set; }
 
         [JsonProperty("avsenderKontoId")]
-        public Guid AvsenderKontoId { get; set; }
+        public Guid SenderAccountId { get; set; }
 
         [JsonProperty("mottakerKontoId")]
-        public Guid MottakerKontoId { get; set; }
+        public Guid ReceiverAccountId { get; set; }
 
         [JsonProperty("ttl")]
         public long Ttl { get; set; }
@@ -24,6 +24,6 @@ namespace KS.Fiks.IO.Send.Client.Models
         public Guid? DokumentlagerId { get; set; }
 
         [JsonProperty("svarPaMelding")]
-        public Guid? SvarPaMelding { get; set; }
+        public Guid? RelatedMessageId { get; set; }
     }
 }
