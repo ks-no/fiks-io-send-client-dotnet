@@ -73,7 +73,6 @@ namespace KS.Fiks.IO.Send.Client
             var stringContent = new StringContent(JsonConvert.SerializeObject(metaData), Encoding.UTF8);
             stringContent.Headers.ContentType = new MediaTypeHeaderValue("application/json");
 
-            Console.WriteLine($"Fiks.IO.Send sends data of size: {data.Length}");
             var dataContent = new StreamContent(data);
 
             var request = new MultipartFormDataContent
@@ -81,7 +80,7 @@ namespace KS.Fiks.IO.Send.Client
                 {stringContent, "metadata"},
                 {dataContent, "data", Guid.NewGuid().ToString()}
             };
-
+            
             return request;
         }
 

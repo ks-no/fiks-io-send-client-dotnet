@@ -11,9 +11,6 @@ namespace KS.Fiks.IO.Send.Client
         [JsonProperty("mottakerKontoId")]
         public Guid MottakerKontoId { get; set; }
 
-        [JsonProperty("meldingType")]
-        public string MeldingType { get; set; }
-
         [JsonProperty("svarPaMelding")]
         public Guid SvarPaMelding { get; set; }
 

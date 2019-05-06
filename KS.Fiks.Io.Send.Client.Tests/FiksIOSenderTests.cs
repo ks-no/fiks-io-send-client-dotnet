@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
@@ -110,7 +111,6 @@ namespace KS.Fiks.IO.Send.Client.Tests
             {
                 AvsenderKontoId = Guid.NewGuid(),
                 MottakerKontoId = Guid.NewGuid(),
-                MeldingType = "A type",
                 SvarPaMelding = Guid.NewGuid(),
                 Ttl = 100
             };
@@ -126,10 +126,30 @@ namespace KS.Fiks.IO.Send.Client.Tests
         }
 
         [Fact]
+        public async Task SendsExpectedStringAsFile()
+        {
+            var sut = _fixture.CreateSut();
+
+            var text = "Test text";
+
+            using (var memoryStream = new MemoryStream(Encoding.ASCII.GetBytes(text)))
+            {
+                var result = await sut.Send(new MessageSpecificationApiModel(), memoryStream).ConfigureAwait(false);
+
+                _fixture.HttpMessageHandleMock.Protected().Verify(
+                    "SendAsync",
+                    Times.Exactly(1),
+                    ItExpr.Is<HttpRequestMessage>(req =>
+                        TestHelper.GetPartContent(req, "data").Result == text),
+                    ItExpr.IsAny<CancellationToken>());
+            }
+        }
+
+        [Fact]
         public async Task SendsExpectedFile()
         {
             var sut = _fixture.CreateSut();
-            
+
             var fileText = File.ReadAllText("./testfile.txt");
 
             using (var memoryStream = new FileStream("./testfile.txt", FileMode.Open))
