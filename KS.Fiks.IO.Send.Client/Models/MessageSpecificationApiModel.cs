@@ -5,7 +5,8 @@ namespace KS.Fiks.IO.Send.Client.Models
 {
     public class MessageSpecificationApiModel
     {
-        public MessageSpecificationApiModel(Guid senderAccountId,
+        public MessageSpecificationApiModel(
+            Guid senderAccountId,
             Guid receiverAccountId,
             string messageType,
             long ttl,
@@ -17,7 +18,7 @@ namespace KS.Fiks.IO.Send.Client.Models
             Ttl = ttl;
             RelatedMessageId = relatedMessageId;
         }
-        
+
         [JsonProperty("avsenderKontoId")]
         public Guid SenderAccountId { get; }
 
@@ -26,7 +27,7 @@ namespace KS.Fiks.IO.Send.Client.Models
 
         [JsonProperty("svarPaMelding")]
         public Guid? RelatedMessageId { get; }
-        
+
         [JsonProperty("meldingType")]
         public string MessageType { get; }
 

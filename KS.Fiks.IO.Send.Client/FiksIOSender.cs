@@ -1,10 +1,8 @@
 using System;
 using System.IO;
-using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
-using System.Net.Mime;
 using System.Text;
 using System.Threading.Tasks;
 using KS.Fiks.IO.Send.Client.Authentication;
@@ -80,9 +78,9 @@ namespace KS.Fiks.IO.Send.Client
             var request = new MultipartFormDataContent
             {
                 {stringContent, "metadata"},
-                {dataContent, "data", Guid.NewGuid().ToString()}
+                {dataContent, "data", Guid.NewGuid().ToString() }
             };
-            
+
             return request;
         }
 

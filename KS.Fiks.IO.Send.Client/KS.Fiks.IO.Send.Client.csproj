@@ -7,7 +7,7 @@
         <Copyright>Ks-Kommunesektorens Organisasjon</Copyright>
         <RootNamespace>KS.Fiks.IO.Send.Client</RootNamespace>
         <PackageProjectUrl>https://github.com/ks-no/fiks-io-send-client-dotnet</PackageProjectUrl>
-        <PackageLicenseUrl>https://github.com/ks-no/fiks-io-send-client-dotnet/raw/master/LICENSE</PackageLicenseUrl>
+        <PackageLicense>https://github.com/ks-no/fiks-io-send-client-dotnet/raw/master/LICENSE</PackageLicense>
         <RepositoryUrl>https://github.com/ks-no/fiks-io-send-client-dotnet.git</RepositoryUrl>
         <RepositoryType>git</RepositoryType>
         <PackageTags>FIKS</PackageTags>

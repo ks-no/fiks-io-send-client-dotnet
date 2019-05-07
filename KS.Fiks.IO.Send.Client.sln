@@ -1,8 +1,8 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KS.Fiks.Io.Send.Client", "KS.Fiks.Io.Send.Client\KS.Fiks.Io.Send.Client.csproj", "{7AB756E4-A63E-4E20-B3D1-F15E811E2D8E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KS.Fiks.IO.Send.Client", "KS.Fiks.IO.Send.Client\KS.Fiks.IO.Send.Client.csproj", "{7AB756E4-A63E-4E20-B3D1-F15E811E2D8E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KS.Fiks.Io.Send.Client.Tests", "KS.Fiks.Io.Send.Client.Tests\KS.Fiks.Io.Send.Client.Tests.csproj", "{14407BD3-723C-40C5-B61F-19E1AD3BCE8A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KS.Fiks.IO.Send.Client.Tests", "KS.Fiks.IO.Send.Client.Tests\KS.Fiks.IO.Send.Client.Tests.csproj", "{14407BD3-723C-40C5-B61F-19E1AD3BCE8A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

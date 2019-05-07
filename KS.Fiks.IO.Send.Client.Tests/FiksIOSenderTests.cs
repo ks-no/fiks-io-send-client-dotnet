@@ -157,7 +157,6 @@ namespace KS.Fiks.IO.Send.Client.Tests
 
                 var result = await sut.Send(_fixture.DefaultMessage, memoryStream).ConfigureAwait(false);
 
-
                 _fixture.HttpMessageHandleMock.Protected().Verify(
                     "SendAsync",
                     Times.Exactly(1),
