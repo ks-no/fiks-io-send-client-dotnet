@@ -2,7 +2,7 @@ namespace KS.Fiks.IO.Send.Client.Configuration
 {
     public class FiksIOSenderConfiguration
     {
-        private const string DefaultPath = "/svarinn2/api/v1/send";
+        private const string DefaultPath = "/fiks-io/api/v1/send";
 
         private const string DefaultScheme = "https";
 
