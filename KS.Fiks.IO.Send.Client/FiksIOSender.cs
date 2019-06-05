@@ -34,17 +34,17 @@ namespace KS.Fiks.IO.Send.Client
         public FiksIOSender(
             FiksIOSenderConfiguration configuration,
             IMaskinportenClient maskinportenClient,
-            Guid integrastionId,
-            string integrationPassword,
+            Guid integrasjonId,
+            string integrasjonPassord,
             HttpClient httpClient = null)
             : this(
                 configuration,
-                new IntegrasjonAuthenticationStrategy(maskinportenClient, integrastionId, integrationPassword),
+                new IntegrasjonAuthenticationStrategy(maskinportenClient, integrasjonId, integrasjonPassord),
                 httpClient)
         {
         }
 
-        public async Task<SentMessageApiModel> Send(MessageSpecificationApiModel metaData, Stream data)
+        public async Task<SendtMeldingApiModel> Send(MeldingSpesifikasjonApiModel metaData, Stream data)
         {
             var response = await SendDataWithPost(metaData, data).ConfigureAwait(false);
 
@@ -54,7 +54,7 @@ namespace KS.Fiks.IO.Send.Client
             return await DeserializeResponse(response).ConfigureAwait(false);
         }
 
-        private async Task<HttpResponseMessage> SendDataWithPost(MessageSpecificationApiModel metaData, Stream data)
+        private async Task<HttpResponseMessage> SendDataWithPost(MeldingSpesifikasjonApiModel metaData, Stream data)
         {
             var requestMessage = new HttpRequestMessage(HttpMethod.Post, CreateUri());
             foreach (var keyValuePair in await _authenticationStrategy
@@ -68,7 +68,7 @@ namespace KS.Fiks.IO.Send.Client
             return await _httpClient.SendAsync(requestMessage).ConfigureAwait(false);
         }
 
-        private MultipartFormDataContent CreateRequestContent(MessageSpecificationApiModel metaData, Stream data)
+        private MultipartFormDataContent CreateRequestContent(MeldingSpesifikasjonApiModel metaData, Stream data)
         {
             var stringContent = new StringContent(JsonConvert.SerializeObject(metaData), Encoding.UTF8);
             stringContent.Headers.ContentType = new MediaTypeHeaderValue("application/json");
@@ -114,13 +114,13 @@ namespace KS.Fiks.IO.Send.Client
             }
         }
 
-        private async Task<SentMessageApiModel> DeserializeResponse(HttpResponseMessage response)
+        private async Task<SendtMeldingApiModel> DeserializeResponse(HttpResponseMessage response)
         {
             var responseString = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
 
             try
             {
-                return JsonConvert.DeserializeObject<SentMessageApiModel>(responseString);
+                return JsonConvert.DeserializeObject<SendtMeldingApiModel>(responseString);
             }
             catch (Exception innerException)
             {

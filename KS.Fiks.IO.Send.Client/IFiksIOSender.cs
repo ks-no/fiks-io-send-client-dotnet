@@ -6,6 +6,6 @@ namespace KS.Fiks.IO.Send.Client
 {
     public interface IFiksIOSender
     {
-        Task<SentMessageApiModel> Send(MessageSpecificationApiModel metaData, Stream data);
+        Task<SendtMeldingApiModel> Send(MeldingSpesifikasjonApiModel metaData, Stream data);
     }
 }

@@ -32,7 +32,7 @@ namespace KS.Fiks.IO.Send.Client.Tests
             var sut = _fixture.CreateSut();
             var result = await sut.Send(_fixture.DefaultMessage, new MemoryStream()).ConfigureAwait(false);
 
-            result.Should().BeOfType<SentMessageApiModel>();
+            result.Should().BeOfType<SendtMeldingApiModel>();
         }
 
         [Fact]
@@ -108,7 +108,7 @@ namespace KS.Fiks.IO.Send.Client.Tests
         {
             var sut = _fixture.CreateSut();
 
-            var model = new MessageSpecificationApiModel(
+            var model = new MeldingSpesifikasjonApiModel(
                 Guid.NewGuid(),
                 Guid.NewGuid(),
                 "messageType",
@@ -190,26 +190,26 @@ namespace KS.Fiks.IO.Send.Client.Tests
         [Fact]
         public async Task ReturnsExpectedSentMessageApiModel()
         {
-            var expectedResult = new SentMessageApiModel
+            var expectedResult = new SendtMeldingApiModel
             {
-                MessageId = Guid.NewGuid(),
-                MessageType = "type",
-                SenderAccountId = Guid.NewGuid(),
-                ReceiverAccountId = Guid.NewGuid(),
+                MeldingId = Guid.NewGuid(),
+                MeldingType = "type",
+                AvsenderKontoId = Guid.NewGuid(),
+                MottakerKontoId = Guid.NewGuid(),
                 Ttl = 10,
                 DokumentlagerId = Guid.NewGuid(),
-                RelatedMessageId = Guid.NewGuid()
+                SvarPaMelding = Guid.NewGuid()
             };
 
             var sut = _fixture.WithReturnValue(expectedResult).CreateSut();
             var result = await sut.Send(_fixture.DefaultMessage, new MemoryStream()).ConfigureAwait(false);
-            result.MessageId.Should().Be(expectedResult.MessageId);
-            result.MessageType.Should().Be(expectedResult.MessageType);
-            result.SenderAccountId.Should().Be(expectedResult.SenderAccountId);
-            result.ReceiverAccountId.Should().Be(expectedResult.ReceiverAccountId);
+            result.MeldingId.Should().Be(expectedResult.MeldingId);
+            result.MeldingType.Should().Be(expectedResult.MeldingType);
+            result.AvsenderKontoId.Should().Be(expectedResult.AvsenderKontoId);
+            result.MottakerKontoId.Should().Be(expectedResult.MottakerKontoId);
             result.Ttl.Should().Be(expectedResult.Ttl);
             result.DokumentlagerId.Should().Be(expectedResult.DokumentlagerId);
-            result.RelatedMessageId.Should().Be(expectedResult.RelatedMessageId);
+            result.SvarPaMelding.Should().Be(expectedResult.SvarPaMelding);
         }
 
         [Fact]

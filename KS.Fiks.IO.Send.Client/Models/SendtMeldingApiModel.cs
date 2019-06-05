@@ -3,19 +3,19 @@ using Newtonsoft.Json;
 
 namespace KS.Fiks.IO.Send.Client.Models
 {
-    public class SentMessageApiModel
+    public class SendtMeldingApiModel
     {
         [JsonProperty("meldingId")]
-        public Guid MessageId { get; set; }
+        public Guid MeldingId { get; set; }
 
         [JsonProperty("meldingType")]
-        public string MessageType { get; set; }
+        public string MeldingType { get; set; }
 
         [JsonProperty("avsenderKontoId")]
-        public Guid SenderAccountId { get; set; }
+        public Guid AvsenderKontoId { get; set; }
 
         [JsonProperty("mottakerKontoId")]
-        public Guid ReceiverAccountId { get; set; }
+        public Guid MottakerKontoId { get; set; }
 
         [JsonProperty("ttl")]
         public long Ttl { get; set; }
@@ -24,6 +24,6 @@ namespace KS.Fiks.IO.Send.Client.Models
         public Guid? DokumentlagerId { get; set; }
 
         [JsonProperty("svarPaMelding")]
-        public Guid? RelatedMessageId { get; set; }
+        public Guid? SvarPaMelding { get; set; }
     }
 }

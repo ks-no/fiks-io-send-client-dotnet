@@ -20,7 +20,7 @@ namespace KS.Fiks.IO.Send.Client.Tests
         private string _host;
         private int _port;
         private HttpStatusCode _statusCode;
-        private SentMessageApiModel _returnValue;
+        private SendtMeldingApiModel _returnValue;
         private string _returnValueAsJson;
         private Dictionary<string, string> _authorizationHeaders;
         private bool _useInvalidReturnValue = false;
@@ -36,8 +36,8 @@ namespace KS.Fiks.IO.Send.Client.Tests
 
         public Mock<HttpMessageHandler> HttpMessageHandleMock { get; }
 
-        public MessageSpecificationApiModel DefaultMessage =>
-            new MessageSpecificationApiModel(Guid.NewGuid(), Guid.NewGuid(), "defaultType", 100, null);
+        public MeldingSpesifikasjonApiModel DefaultMessage =>
+            new MeldingSpesifikasjonApiModel(Guid.NewGuid(), Guid.NewGuid(), "defaultType", 100, null);
 
         public FiksIOSender CreateSut()
         {
@@ -79,7 +79,7 @@ namespace KS.Fiks.IO.Send.Client.Tests
             return this;
         }
 
-        public FiksIOSenderFixture WithReturnValue(SentMessageApiModel value)
+        public FiksIOSenderFixture WithReturnValue(SendtMeldingApiModel value)
         {
             _returnValue = value;
             return this;
@@ -115,7 +115,7 @@ namespace KS.Fiks.IO.Send.Client.Tests
             _scheme = "http";
             _port = 8084;
             _statusCode = HttpStatusCode.Accepted;
-            _returnValue = new SentMessageApiModel();
+            _returnValue = new SendtMeldingApiModel();
             _authorizationHeaders = new Dictionary<string, string>();
         }
 
