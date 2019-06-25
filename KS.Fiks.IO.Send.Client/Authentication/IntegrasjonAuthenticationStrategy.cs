@@ -7,7 +7,7 @@ namespace KS.Fiks.IO.Send.Client.Authentication
 {
     public class IntegrasjonAuthenticationStrategy : IAuthenticationStrategy
     {
-        private const string DefaultScope = "ks";
+        private const string DefaultScope = "ks:fiks";
 
         private readonly IMaskinportenClient _maskinportenClient;
         private readonly Guid _integrasjonId;
