@@ -36,6 +36,15 @@ namespace KS.Fiks.IO.Send.Client.Tests
         }
 
         [Fact]
+        public async Task ReturnsSentMessageApiModelIfNoData()
+        {
+            var sut = _fixture.CreateSut();
+            var result = await sut.Send(_fixture.DefaultMessage).ConfigureAwait(false);
+
+            result.Should().BeOfType<SendtMeldingApiModel>();
+        }
+
+        [Fact]
         public async Task SendsAPostRequestWithExpectedHost()
         {
             var host = "test.host.com";
@@ -89,7 +98,7 @@ namespace KS.Fiks.IO.Send.Client.Tests
         [Fact]
         public async Task SendAPostRequestToExpectedPath()
         {
-            var expectedRequestPath = "/svarinn2/api/v1/send";
+            var expectedRequestPath = "/fiksio/api/v1/send";
 
             var sut = _fixture.WithPath(expectedRequestPath).CreateSut();
 
