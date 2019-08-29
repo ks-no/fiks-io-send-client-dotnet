@@ -54,6 +54,11 @@ namespace KS.Fiks.IO.Send.Client
             return await DeserializeResponse(response).ConfigureAwait(false);
         }
 
+        public async Task<SendtMeldingApiModel> Send(MeldingSpesifikasjonApiModel metaData)
+        {
+            return await Send(metaData, null).ConfigureAwait(false);
+        }
+
         private async Task<HttpResponseMessage> SendDataWithPost(MeldingSpesifikasjonApiModel metaData, Stream data)
         {
             var requestMessage = new HttpRequestMessage(HttpMethod.Post, CreateUri());
@@ -72,6 +77,14 @@ namespace KS.Fiks.IO.Send.Client
         {
             var stringContent = new StringContent(JsonConvert.SerializeObject(metaData), Encoding.UTF8);
             stringContent.Headers.ContentType = new MediaTypeHeaderValue("application/json");
+
+            if (data == null)
+            {
+                return new MultipartFormDataContent
+                {
+                    {stringContent, "metadata"}
+                };
+            }
 
             var dataContent = new StreamContent(data);
 
