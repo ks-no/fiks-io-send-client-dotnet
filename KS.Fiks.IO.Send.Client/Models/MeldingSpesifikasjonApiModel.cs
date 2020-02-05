@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Newtonsoft.Json;
 
 namespace KS.Fiks.IO.Send.Client.Models
@@ -10,12 +11,14 @@ namespace KS.Fiks.IO.Send.Client.Models
             Guid mottakerKontoId,
             string meldingType,
             long ttl,
+            Dictionary<string, string> headere,
             Guid? svarPaMelding = null)
         {
             AvsenderKontoId = avsenderKontoId;
             MottakerKontoId = mottakerKontoId;
             MeldingType = meldingType;
             Ttl = ttl;
+            Headere = headere;
             SvarPaMelding = svarPaMelding;
         }
 
@@ -33,5 +36,8 @@ namespace KS.Fiks.IO.Send.Client.Models
 
         [JsonProperty("ttl")]
         public long Ttl { get; }
+
+        [JsonProperty("headere")]
+        public Dictionary<string, string> Headere { get; }
     }
 }

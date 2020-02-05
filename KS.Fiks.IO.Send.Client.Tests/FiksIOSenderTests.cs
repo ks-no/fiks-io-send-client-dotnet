@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -118,11 +119,12 @@ namespace KS.Fiks.IO.Send.Client.Tests
             var sut = _fixture.CreateSut();
 
             var model = new MeldingSpesifikasjonApiModel(
-                Guid.NewGuid(),
-                Guid.NewGuid(),
-                "messageType",
-                100,
-                Guid.NewGuid());
+                avsenderKontoId: Guid.NewGuid(),
+                mottakerKontoId: Guid.NewGuid(),
+                meldingType: "messageType",
+                ttl: 100,
+                headere: new Dictionary<string, string>(),
+                svarPaMelding: Guid.NewGuid());
             var serializedModel = JsonConvert.SerializeObject(model);
             var result = await sut.Send(model, new MemoryStream()).ConfigureAwait(false);
 

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Newtonsoft.Json;
 
 namespace KS.Fiks.IO.Send.Client.Models
@@ -25,5 +26,8 @@ namespace KS.Fiks.IO.Send.Client.Models
 
         [JsonProperty("svarPaMelding")]
         public Guid? SvarPaMelding { get; set; }
+
+        [JsonProperty("headere")]
+        public Dictionary<string, string> Headere { get; set; }
     }
 }

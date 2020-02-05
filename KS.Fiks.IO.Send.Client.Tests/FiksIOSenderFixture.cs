@@ -37,7 +37,15 @@ namespace KS.Fiks.IO.Send.Client.Tests
         public Mock<HttpMessageHandler> HttpMessageHandleMock { get; }
 
         public MeldingSpesifikasjonApiModel DefaultMessage =>
-            new MeldingSpesifikasjonApiModel(Guid.NewGuid(), Guid.NewGuid(), "defaultType", 100, null);
+            new MeldingSpesifikasjonApiModel(
+                avsenderKontoId: Guid.NewGuid(),
+                mottakerKontoId: Guid.NewGuid(),
+                meldingType: "defaultType",
+                ttl: 100,
+                headere: new Dictionary<string, string>
+                {
+                    { "My_Header", "My_Value" }
+                });
 
         public FiksIOSender CreateSut()
         {
