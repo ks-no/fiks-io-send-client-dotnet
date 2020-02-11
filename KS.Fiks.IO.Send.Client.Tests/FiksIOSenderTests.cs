@@ -231,6 +231,7 @@ namespace KS.Fiks.IO.Send.Client.Tests
                                        "\"avsenderKontoId\":\"a6ac54b1-6ab5-413d-8ba5-aac64bbeff08\"," +
                                        "\"mottakerKontoId\":\"a6ac54b1-6ab5-413d-8ba5-aac64bbeff08\"," +
                                        "\"ttl\":3434,\"dokumentlagerId\":null," +
+                                       "\"headere\":{\"MyHeader\":\"MyValue\"}," +
                                        "\"svarPaMelding\":\"38bc7d50-08e1-4cb6-b2b1-7b9805ca8def\"}";
 
             var sut = _fixture.WithReturnValueAsJson(expectedResultAsJson).CreateSut();
