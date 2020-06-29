@@ -7,12 +7,12 @@
         <Copyright>Ks-Kommunesektorens Organisasjon</Copyright>
         <RootNamespace>KS.Fiks.IO.Send.Client</RootNamespace>
         <PackageProjectUrl>https://github.com/ks-no/fiks-io-send-client-dotnet</PackageProjectUrl>
-        <PackageLicense>https://github.com/ks-no/fiks-io-send-client-dotnet/raw/master/LICENSE</PackageLicense>
         <RepositoryUrl>https://github.com/ks-no/fiks-io-send-client-dotnet.git</RepositoryUrl>
+        <PackageLicenseFile>LICENSE</PackageLicenseFile>
+        <PackageIcon>KS.png</PackageIcon>
         <RepositoryType>git</RepositoryType>
         <PackageTags>FIKS</PackageTags>
         <VersionPrefix>1.0.6</VersionPrefix>
-        <PackageIconUrl>https://ks-no.github.io/images/favicon.png</PackageIconUrl>
         <TargetFrameworks>netstandard2.1;netcoreapp3.1</TargetFrameworks>
         <IncludeSymbols>true</IncludeSymbols>
         <SymbolPackageFormat>snupkg</SymbolPackageFormat>
@@ -22,6 +22,16 @@
         <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
         <PackageReference Include="KS.Fiks.QA" Version="1.0.0" PrivateAssets="All" />
         <PackageReference Include="KS.Fiks.Maskinporten.Client" Version="1.0.0" />
+    </ItemGroup>
+    <ItemGroup>
+        <None Include="KS.png">
+            <Pack>true</Pack>
+            <PackagePath>/</PackagePath>
+        </None>
+        <None Include="../LICENSE">
+            <Pack>true</Pack>
+            <PackagePath>/</PackagePath>
+        </None>
     </ItemGroup>
 
 </Project>
