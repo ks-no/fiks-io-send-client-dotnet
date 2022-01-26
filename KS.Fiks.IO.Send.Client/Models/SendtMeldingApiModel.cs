@@ -9,6 +9,9 @@ namespace KS.Fiks.IO.Send.Client.Models
         [JsonProperty("meldingId")]
         public Guid MeldingId { get; set; }
 
+        [JsonProperty("klientMeldingID")]
+        public Guid? KlientMeldingID { get; }
+
         [JsonProperty("meldingType")]
         public string MeldingType { get; set; }
 
