@@ -31,6 +31,9 @@ namespace KS.Fiks.IO.Send.Client.Models
         [JsonProperty("svarPaMelding")]
         public Guid? SvarPaMelding { get; }
 
+        [JsonProperty("klientMeldingID")]
+        public Guid? KlientMeldingID { get; }
+
         [JsonProperty("meldingType")]
         public string MeldingType { get; }
 
