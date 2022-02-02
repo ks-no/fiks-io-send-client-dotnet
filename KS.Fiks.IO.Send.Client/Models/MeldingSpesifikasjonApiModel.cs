@@ -9,6 +9,7 @@ namespace KS.Fiks.IO.Send.Client.Models
         public MeldingSpesifikasjonApiModel(
             Guid avsenderKontoId,
             Guid mottakerKontoId,
+            Guid klientMeldingId,
             string meldingType,
             long ttl,
             Dictionary<string, string> headere,
@@ -16,6 +17,7 @@ namespace KS.Fiks.IO.Send.Client.Models
         {
             AvsenderKontoId = avsenderKontoId;
             MottakerKontoId = mottakerKontoId;
+            KlientMeldingID = klientMeldingId;
             MeldingType = meldingType;
             Ttl = ttl;
             Headere = headere;
