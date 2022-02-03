@@ -17,7 +17,7 @@ namespace KS.Fiks.IO.Send.Client.Models
         {
             AvsenderKontoId = avsenderKontoId;
             MottakerKontoId = mottakerKontoId;
-            KlientMeldingID = klientMeldingId;
+            KlientMeldingId = klientMeldingId;
             MeldingType = meldingType;
             Ttl = ttl;
             Headere = headere;
@@ -33,8 +33,8 @@ namespace KS.Fiks.IO.Send.Client.Models
         [JsonProperty("svarPaMelding")]
         public Guid? SvarPaMelding { get; }
 
-        [JsonProperty("klientMeldingID")]
-        public Guid? KlientMeldingID { get; }
+        [JsonProperty("klientMeldingId")]
+        public Guid? KlientMeldingId { get; }
 
         [JsonProperty("meldingType")]
         public string MeldingType { get; }
