@@ -9,7 +9,7 @@ namespace KS.Fiks.IO.Send.Client.Models
         public MeldingSpesifikasjonApiModel(
             Guid avsenderKontoId,
             Guid mottakerKontoId,
-            Guid klientMeldingId,
+            Guid? klientMeldingId,
             string meldingType,
             long ttl,
             Dictionary<string, string> headere,
