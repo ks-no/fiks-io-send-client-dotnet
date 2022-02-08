@@ -40,12 +40,10 @@ namespace KS.Fiks.IO.Send.Client.Tests
             new MeldingSpesifikasjonApiModel(
                 avsenderKontoId: Guid.NewGuid(),
                 mottakerKontoId: Guid.NewGuid(),
+                klientMeldingId: Guid.NewGuid(),
                 meldingType: "defaultType",
                 ttl: 100,
-                headere: new Dictionary<string, string>
-                {
-                    { "My_Header", "My_Value" }
-                });
+                headere: new Dictionary<string, string> {{ "My_Header", "My_Value" }});
 
         public FiksIOSender CreateSut()
         {

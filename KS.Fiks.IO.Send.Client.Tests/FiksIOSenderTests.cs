@@ -121,6 +121,7 @@ namespace KS.Fiks.IO.Send.Client.Tests
             var model = new MeldingSpesifikasjonApiModel(
                 avsenderKontoId: Guid.NewGuid(),
                 mottakerKontoId: Guid.NewGuid(),
+                klientMeldingId: Guid.NewGuid(),
                 meldingType: "messageType",
                 ttl: 100,
                 headere: new Dictionary<string, string>(),
