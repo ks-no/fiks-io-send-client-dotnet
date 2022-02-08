@@ -9,10 +9,10 @@ namespace KS.Fiks.IO.Send.Client.Models
         public MeldingSpesifikasjonApiModel(
             Guid avsenderKontoId,
             Guid mottakerKontoId,
-            Guid? klientMeldingId,
             string meldingType,
             long ttl,
             Dictionary<string, string> headere,
+            Guid? klientMeldingId = default,
             Guid? svarPaMelding = null)
         {
             AvsenderKontoId = avsenderKontoId;
