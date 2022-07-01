@@ -13,7 +13,7 @@
         <RepositoryType>git</RepositoryType>
         <PackageTags>FIKS</PackageTags>
         <VersionPrefix>1.0.9</VersionPrefix>
-        <TargetFrameworks>netstandard2.0;netcoreapp3.1</TargetFrameworks>
+        <TargetFrameworks>net6.0;netcoreapp3.1;netstandard2.0</TargetFrameworks>
         <IncludeSymbols>true</IncludeSymbols>
         <SymbolPackageFormat>snupkg</SymbolPackageFormat>
         <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
@@ -25,9 +25,9 @@
     </PropertyGroup>
     
     <ItemGroup>
-        <PackageReference Include="Newtonsoft.Json" Version="[11.0.1, 13.0.1]" />
+        <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
         <PackageReference Include="KS.Fiks.QA" Version="1.0.0" PrivateAssets="All" />
-        <PackageReference Include="KS.Fiks.Maskinporten.Client" Version="1.1.1" />
+        <PackageReference Include="KS.Fiks.Maskinporten.Client" Version="1.1.2" />
         <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
