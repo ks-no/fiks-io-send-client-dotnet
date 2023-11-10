@@ -12,7 +12,7 @@
         <PackageIcon>KS.png</PackageIcon>
         <RepositoryType>git</RepositoryType>
         <PackageTags>FIKS</PackageTags>
-        <VersionPrefix>1.0.11</VersionPrefix>
+        <VersionPrefix>1.0.12</VersionPrefix>
         <TargetFrameworks>net6.0;netcoreapp3.1;netstandard2.0</TargetFrameworks>
         <IncludeSymbols>true</IncludeSymbols>
         <SymbolPackageFormat>snupkg</SymbolPackageFormat>
