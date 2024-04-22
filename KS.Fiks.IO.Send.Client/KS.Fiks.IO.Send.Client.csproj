@@ -25,9 +25,9 @@
     </PropertyGroup>
     
     <ItemGroup>
-        <PackageReference Include="Newtonsoft.Json" Version="13.0.2" />
+        <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
         <PackageReference Include="KS.Fiks.QA" Version="1.0.0" PrivateAssets="All" />
-        <PackageReference Include="KS.Fiks.Maskinporten.Client" Version="1.1.5" />
+        <PackageReference Include="KS.Fiks.Maskinporten.Client" Version="1.1.10" />
         <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
