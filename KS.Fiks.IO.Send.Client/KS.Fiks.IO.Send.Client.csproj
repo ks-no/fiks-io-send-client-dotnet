@@ -13,7 +13,7 @@
         <RepositoryType>git</RepositoryType>
         <PackageTags>FIKS</PackageTags>
         <VersionPrefix>1.0.13</VersionPrefix>
-        <TargetFrameworks>net6.0;netcoreapp3.1;netstandard2.0</TargetFrameworks>
+        <TargetFrameworks>net6.0;netcoreapp3.1;netstandard2.1</TargetFrameworks>
         <IncludeSymbols>true</IncludeSymbols>
         <SymbolPackageFormat>snupkg</SymbolPackageFormat>
         <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
@@ -25,6 +25,7 @@
     </PropertyGroup>
     
     <ItemGroup>
+        <PackageReference Include="KS.Fiks.IO.Encryption" Version="1.0.2" />
         <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
         <PackageReference Include="KS.Fiks.QA" Version="1.0.0" PrivateAssets="All" />
         <PackageReference Include="KS.Fiks.Maskinporten.Client" Version="1.1.10" />
