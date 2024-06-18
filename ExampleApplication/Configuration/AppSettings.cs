@@ -1,5 +1,4 @@
-﻿
-namespace ExampleApplication.AppSettings;
+﻿namespace ExampleApplication.Configuration;
 
 public class AppSettings
 {

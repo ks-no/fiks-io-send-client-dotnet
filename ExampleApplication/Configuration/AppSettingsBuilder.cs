@@ -1,6 +1,6 @@
 using Microsoft.Extensions.Configuration;
 
-namespace ExampleApplication.AppSettings;
+namespace ExampleApplication.Configuration;
 
 public static class AppSettingsBuilder
 {

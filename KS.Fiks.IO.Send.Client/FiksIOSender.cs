@@ -36,13 +36,12 @@ namespace KS.Fiks.IO.Send.Client
             _authenticationStrategy = authenticationStrategy;
             _httpClient = httpClient ?? new HttpClient();
 
-            // TODO: Exception en eller annen plass dersom kryptering ikke er konfigurert og skal brukes
             if (_configuration.IntegrasjonConfiguration != null &&
                 _authenticationStrategy is IntegrasjonAuthenticationStrategy integrasjonAuthenticationStrategy)
             {
                 _publicKeyProvider = new CatalogPublicKeyProvider(
                     new CatalogHandler(
-                        new KatalogConfiguration(host: configuration.Host),
+                        new KatalogConfiguration(host: configuration?.Host),
                         new IntegrasjonConfiguration(
                             _configuration.IntegrasjonConfiguration.IntegrasjonId, 
                             _configuration.IntegrasjonConfiguration.IntegrasjonPassord),
@@ -59,7 +58,18 @@ namespace KS.Fiks.IO.Send.Client
             }
         }
 
-        // TODO: integrasjonsId og integrasjonPassord kan hentes fra både konfigurasjonen og parametre. Hvordan håndtere best?
+        public FiksIOSender(
+            FiksIOSenderConfiguration configuration,
+            IMaskinportenClient maskinportenClient,
+            HttpClient httpClient = null)
+            : this(
+                configuration,
+                new IntegrasjonAuthenticationStrategy(maskinportenClient, configuration),
+                httpClient)
+        {
+        }
+
+        [Obsolete("Use configuration object instead of integrasjonId and integrasjonPassord parameters")]
         public FiksIOSender(
             FiksIOSenderConfiguration configuration,
             IMaskinportenClient maskinportenClient,
@@ -73,7 +83,7 @@ namespace KS.Fiks.IO.Send.Client
         {
             _publicKeyProvider = new CatalogPublicKeyProvider(
                 new CatalogHandler(
-                    new KatalogConfiguration(),
+                    new KatalogConfiguration(host: configuration?.Host),
                     new IntegrasjonConfiguration(integrasjonId, integrasjonPassord),
                     maskinportenClient,
                     _httpClient));
@@ -87,9 +97,15 @@ namespace KS.Fiks.IO.Send.Client
             }
         }
 
-        public async Task<SendtMeldingApiModel> SendWithEncryptedData(MeldingSpesifikasjonApiModel metaData,
+        public async Task<SendtMeldingApiModel> SendWithEncryptedData(
+            MeldingSpesifikasjonApiModel metaData,
             IList<IPayload> payload)
         {
+            if (_publicKeyProvider == null || _asicEncrypter == null)
+            {
+                throw new FiksIOSendEncryptionException("Cannot send encrypted data. Encryption is not configured.");
+            }
+
             var encryptedPayload = await GetEncryptedPayload(metaData.MottakerKontoId, payload).ConfigureAwait(false);
             return await Send(metaData, encryptedPayload).ConfigureAwait(false);
         }

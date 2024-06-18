@@ -1,4 +1,5 @@
 using System.Reflection;
+using ExampleApplication.Configuration;
 using KS.Fiks.IO.Encryption.Models;
 using KS.Fiks.IO.Send.Client;
 using KS.Fiks.IO.Send.Client.Models;
@@ -9,12 +10,12 @@ namespace ExampleApplication.FiksIOSender;
 public class MessageSender
 {
     private readonly IFiksIOSender _fiksIoSender;
-    private readonly AppSettings.AppSettings _appSettings;
+    private readonly AppSettings _appSettings;
 
     private static readonly ILogger Log = Serilog.Log.ForContext(MethodBase.GetCurrentMethod()?.DeclaringType);
 
 
-    public MessageSender(IFiksIOSender fiksIoSender, AppSettings.AppSettings appSettings)
+    public MessageSender(IFiksIOSender fiksIoSender, AppSettings appSettings)
     {
         _fiksIoSender = fiksIoSender;
         _appSettings = appSettings;

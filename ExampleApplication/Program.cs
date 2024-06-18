@@ -1,9 +1,8 @@
 ﻿using System.Reflection;
 using System.Security.Cryptography.X509Certificates;
-using ExampleApplication.AppSettings;
+using ExampleApplication.Configuration;
 using ExampleApplication.FiksIOSender;
 using KS.Fiks.IO.Send.Client;
-using KS.Fiks.IO.Send.Client.Authentication;
 using Ks.Fiks.Maskinporten.Client;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
@@ -18,10 +17,21 @@ var configurationBuilder = new ConfigurationBuilder()
     .Build();
 
 var loggerFactory = InitSerilogConfiguration();
-var logger = Log.ForContext(MethodBase.GetCurrentMethod()?.DeclaringType);
+var logger = Log.ForContext(MethodBase.GetCurrentMethod()!.DeclaringType!);
 var appSettings = AppSettingsBuilder.CreateAppSettings(configurationBuilder);
 var configuration = SenderConfigurationBuilder.CreateConfiguration(appSettings);
-// var configuration = new FiksIOSenderConfigurationBuilder().Build();
+// var configuration = new FiksIOSenderConfigurationBuilder()
+//     .WithAsiceSigningConfiguration(
+//         appSettings.FiksIOSenderConfig.AsiceSigningPublicKey,
+//         appSettings.FiksIOSenderConfig.AsiceSigningPrivateKey)
+//     .WithFiksIntegrasjonConfiguration(
+//         appSettings.FiksIOSenderConfig.FiksIoIntegrationId,
+//         appSettings.FiksIOSenderConfig.FiksIoIntegrationPassword)
+//     .WithApiConfiguration(null,
+//         appSettings.FiksIOSenderConfig.ApiScheme,
+//         appSettings.FiksIOSenderConfig.ApiHost,
+//         appSettings.FiksIOSenderConfig.ApiPort)
+//     .Build();
 
 var maskinportenClient = new MaskinportenClient(new MaskinportenClientConfiguration(
     appSettings.FiksIOSenderConfig.MaskinPortenAudienceUrl,
@@ -32,23 +42,8 @@ var maskinportenClient = new MaskinportenClient(new MaskinportenClientConfigurat
         appSettings.FiksIOSenderConfig.MaskinPortenCompanyCertificatePath,
         appSettings.FiksIOSenderConfig.MaskinPortenCompanyCertificatePassword)));
 
-
-// TODO: Prøv begge konstruktørene
-// var fiksIOSender = new FiksIOSender(
-//     senderConfiguration,
-//     maskinportenClient,
-//     appSettings.FiksIoSenderConfig.FiksIoIntegrationId,
-//     appSettings.FiksIoSenderConfig.FiksIoIntegrationPassword,
-//     httpClient);
-
-var fiksIOSender = new FiksIOSender(
-    configuration,
-    new IntegrasjonAuthenticationStrategy(
-        maskinportenClient,
-        appSettings.FiksIOSenderConfig.FiksIoIntegrationId,
-        appSettings.FiksIOSenderConfig.FiksIoIntegrationPassword));
-
-var messageSender = new MessageSender(fiksIOSender, appSettings);
+var fiksIoSender = new FiksIOSender(configuration, maskinportenClient);
+var messageSender = new MessageSender(fiksIoSender, appSettings);
 var toAccountId = appSettings.FiksIOSenderConfig.FiksIoAccountId;
 
 var consoleKeyTask = Task.Run(() => { MonitorKeypress(); });

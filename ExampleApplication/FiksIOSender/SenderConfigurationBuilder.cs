@@ -1,10 +1,11 @@
+using ExampleApplication.Configuration;
 using KS.Fiks.IO.Send.Client.Configuration;
 
 namespace ExampleApplication.FiksIOSender;
 
 public static class SenderConfigurationBuilder
 {
-    public static FiksIOSenderConfiguration CreateConfiguration(AppSettings.AppSettings appSettings)
+    public static FiksIOSenderConfiguration CreateConfiguration(AppSettings appSettings)
     {
         return new FiksIOSenderConfigurationBuilder()
             .WithAsiceSigningConfiguration(
@@ -13,7 +14,10 @@ public static class SenderConfigurationBuilder
             .WithFiksIntegrasjonConfiguration(
                 appSettings.FiksIOSenderConfig.FiksIoIntegrationId,
                 appSettings.FiksIOSenderConfig.FiksIoIntegrationPassword)
-            .WithApiConfiguration(null, appSettings.FiksIOSenderConfig.ApiScheme, appSettings.FiksIOSenderConfig.ApiHost, appSettings.FiksIOSenderConfig.ApiPort)
+            .WithApiConfiguration(null,
+                appSettings.FiksIOSenderConfig.ApiScheme,
+                appSettings.FiksIOSenderConfig.ApiHost,
+                appSettings.FiksIOSenderConfig.ApiPort)
             .Build();
     }
 }
