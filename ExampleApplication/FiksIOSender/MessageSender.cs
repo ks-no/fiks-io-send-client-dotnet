@@ -1,10 +1,3 @@
-using System.Reflection;
-using ExampleApplication.Configuration;
-using KS.Fiks.IO.Encryption.Models;
-using KS.Fiks.IO.Send.Client;
-using KS.Fiks.IO.Send.Client.Models;
-using ILogger = Serilog.ILogger;
-
 namespace ExampleApplication.FiksIOSender;
 
 public class MessageSender
@@ -30,14 +23,13 @@ public class MessageSender
                 "MessageSender - sending messagetype {MessageType} to account id: {AccountId} with klientMeldingId {KlientMeldingId}",
                 messageType, toAccountId, klientMeldingId);
 
-            // TODO: Korrekt måte å gjøre det på? Må dispose en eller annen plass i all fall
             using var fileStream = new FileStream("testfile.txt", FileMode.Open);
             var payload = new List<IPayload> { new StreamPayload(fileStream, "testfile.txt") };
 
             var sendtMessage = await _fiksIoSender
                 .SendWithEncryptedData(
                     new MeldingSpesifikasjonApiModel(
-                        _appSettings.FiksIOSenderConfig.FiksIoAccountId,
+                        _appSettings.FiksIoAccountId,
                         toAccountId,
                         messageType,
                         ttl: (long)TimeSpan.FromDays(2).TotalMilliseconds,

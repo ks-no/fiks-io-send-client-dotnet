@@ -2,11 +2,6 @@
 
 public class AppSettings
 {
-    public FiksIOSenderConfig FiksIOSenderConfig { get; set; }
-}
-
-public class FiksIOSenderConfig
-{
     public string ApiHost { get; set; } 
     public int ApiPort { get; set; }
     public string ApiScheme { get; set; }
