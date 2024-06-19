@@ -1,4 +1,4 @@
-using KS.Fiks.IO.Encryption.Configuration;
+using KS.Fiks.IO.Crypto.Configuration;
 
 namespace KS.Fiks.IO.Send.Client.Configuration
 {

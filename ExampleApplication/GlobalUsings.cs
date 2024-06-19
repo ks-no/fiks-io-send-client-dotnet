@@ -4,7 +4,7 @@ global using System.Reflection;
 global using System.Security.Cryptography.X509Certificates;
 global using ExampleApplication.Configuration;
 global using ExampleApplication.FiksIOSender;
-global using KS.Fiks.IO.Encryption.Models;
+global using KS.Fiks.IO.Crypto.Models;
 global using KS.Fiks.IO.Send.Client;
 global using KS.Fiks.IO.Send.Client.Configuration;
 global using KS.Fiks.IO.Send.Client.Models;
