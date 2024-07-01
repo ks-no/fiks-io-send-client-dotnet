@@ -14,7 +14,7 @@ namespace KS.Fiks.IO.Send.Client.Authentication
         private readonly Guid _integrasjonId;
         private readonly string _integrasjonPassord;
 
-        public IMaskinportenClient MaskinportenClient => _maskinportenClient; // TODO: Kan denne eksponeres?
+        public IMaskinportenClient MaskinportenClient => _maskinportenClient;
 
         public IntegrasjonAuthenticationStrategy(
             IMaskinportenClient maskinportenClient,

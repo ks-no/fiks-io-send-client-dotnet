@@ -25,7 +25,7 @@
     </PropertyGroup>
     
     <ItemGroup>
-        <PackageReference Include="KS.Fiks.IO.Crypto" Version="1.0.0" />
+        <PackageReference Include="KS.Fiks.IO.Crypto" Version="1.0.2" />
         <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
         <PackageReference Include="KS.Fiks.QA" Version="1.0.0" PrivateAssets="All" />
         <PackageReference Include="KS.Fiks.Maskinporten.Client" Version="1.1.10" />
