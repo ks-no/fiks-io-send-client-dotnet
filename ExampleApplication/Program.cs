@@ -8,11 +8,6 @@ var loggerFactory = InitSerilogConfiguration();
 var logger = Log.ForContext(MethodBase.GetCurrentMethod()!.DeclaringType!);
 var appSettings = AppSettingsBuilder.CreateAppSettings(configurationBuilder);
 var configuration = SenderConfigurationBuilder.CreateConfiguration(appSettings);
-// var configuration = new FiksIOSenderConfigurationBuilder()
-//     .WithAsiceSigningConfiguration(appSettings.AsiceSigningPublicKey, appSettings.AsiceSigningPrivateKey)
-//     .WithFiksIntegrasjonConfiguration(appSettings.FiksIoIntegrationId, appSettings.FiksIoIntegrationPassword)
-//     .WithApiConfiguration(null, appSettings.ApiScheme,appSettings.ApiHost, appSettings.ApiPort)
-//     .Build();
 
 var maskinportenClient = new MaskinportenClient(new MaskinportenClientConfiguration(
     appSettings.MaskinPortenAudienceUrl,
@@ -35,23 +30,14 @@ async Task MonitorKeypress()
 {
     logger.Information("Press Enter-key for sending a Fiks-IO 'ping' message");
 
-    ConsoleKeyInfo cki;
-    do 
+    do
     {
-        //var cki = new ConsoleKeyInfo();
-        // true hides the pressed character from the console
-        cki = Console.ReadKey(true);
-
-        var key = cki.Key;
-
-        if (key == ConsoleKey.Enter)
+        if (Console.ReadKey(true).Key == ConsoleKey.Enter)
         {
             logger.Information("Enter pressed. Sending FiksIoSender ping-message to account id: {ToAccountId}", toAccountId);
             await messageSender.Send("ping", toAccountId);
         }
-    
-        // Wait for an ESC
-    } while (cki.Key != ConsoleKey.Escape);
+    } while (Console.ReadKey(true).Key != ConsoleKey.Escape);
 }
 
 static ILoggerFactory InitSerilogConfiguration()
