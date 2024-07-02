@@ -99,6 +99,20 @@ namespace KS.Fiks.IO.Send.Client
 
         public async Task<SendtMeldingApiModel> SendWithEncryptedData(
             MeldingSpesifikasjonApiModel metaData,
+            IPayload payload)
+        {
+            return await SendEncryptedData(metaData, new List<IPayload> { payload }).ConfigureAwait(false);
+        }
+
+        public async Task<SendtMeldingApiModel> SendWithEncryptedData(
+            MeldingSpesifikasjonApiModel metaData,
+            IList<IPayload> payload)
+        {
+            return await SendEncryptedData(metaData, payload).ConfigureAwait(false);
+        }
+
+        private async Task<SendtMeldingApiModel> SendEncryptedData(
+            MeldingSpesifikasjonApiModel metaData,
             IList<IPayload> payload)
         {
             if (_publicKeyProvider == null || _asicEncrypter == null)
@@ -209,6 +223,16 @@ namespace KS.Fiks.IO.Send.Client
             }
         }
 
+        private async Task<Stream> GetEncryptedPayload(Guid mottakerKontoId, IPayload payload)
+        {
+            if (payload is null)
+            {
+                return null;
+            }
+
+            return await EncryptPayload(mottakerKontoId, new List<IPayload> { payload }).ConfigureAwait(false);
+        }
+
         private async Task<Stream> GetEncryptedPayload(Guid mottakerKontoId, IList<IPayload> payload)
         {
             if (payload.Count == 0)
@@ -216,6 +240,11 @@ namespace KS.Fiks.IO.Send.Client
                 return null;
             }
 
+            return await EncryptPayload(mottakerKontoId, payload).ConfigureAwait(false);
+        }
+
+        private async Task<Stream> EncryptPayload(Guid mottakerKontoId, IList<IPayload> payload)
+        {
             var receiverPublicKey = await _publicKeyProvider.GetPublicKey(mottakerKontoId).ConfigureAwait(false);
             var encryptedPayload = _asicEncrypter.Encrypt(receiverPublicKey, payload);
             encryptedPayload.Seek(0, SeekOrigin.Begin);

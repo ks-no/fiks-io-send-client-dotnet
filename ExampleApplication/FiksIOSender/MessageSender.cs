@@ -23,8 +23,7 @@ public class MessageSender
                 "MessageSender - sending messagetype {MessageType} to account id: {AccountId} with klientMeldingId {KlientMeldingId}",
                 messageType, toAccountId, klientMeldingId);
 
-            using var fileStream = new FileStream("testfile.txt", FileMode.Open);
-            var payload = new List<IPayload> { new StreamPayload(fileStream, "testfile.txt") };
+            var payload = new FilePayload("testfile.txt");
             var metaData = new MeldingSpesifikasjonApiModel(
                 _appSettings.FiksIoAccountId,
                 toAccountId,
@@ -32,12 +31,12 @@ public class MessageSender
                 ttl: (long)TimeSpan.FromDays(2).TotalMilliseconds,
                 headere: new());
 
-            var sendtMessage = await _fiksIoSender
+            var sentMessage = await _fiksIoSender
                 .SendWithEncryptedData(metaData, payload)
                 .ConfigureAwait(false);
             
-            Log.Information("MessageSender - message sendt with messageid: {MessageId}", sendtMessage.MeldingId);
-            return sendtMessage.MeldingId;
+            Log.Information("MessageSender - message sendt with messageid: {MessageId}", sentMessage.MeldingId);
+            return sentMessage.MeldingId;
         }
         catch (Exception e)
         {
