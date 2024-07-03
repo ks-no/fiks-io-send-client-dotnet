@@ -1,3 +1,5 @@
+using KS.Fiks.IO.Crypto.Configuration;
+
 namespace KS.Fiks.IO.Send.Client.Configuration
 {
     public class FiksIOSenderConfiguration
@@ -10,16 +12,24 @@ namespace KS.Fiks.IO.Send.Client.Configuration
 
         private const int DefaultPort = 443;
 
+        public AsiceSigningConfiguration AsiceSigningConfiguration { get; }
+
+        public IntegrasjonConfiguration IntegrasjonConfiguration { get; }
+
         public FiksIOSenderConfiguration(
             string path = null,
             string scheme = null,
             string host = null,
-            int? port = null)
+            int? port = null,
+            AsiceSigningConfiguration asiceSigningConfiguration = null,
+            IntegrasjonConfiguration integrasjonConfiguration = null)
         {
             Path = path ?? DefaultPath;
             Scheme = scheme ?? DefaultScheme;
             Host = host ?? DefaultHost;
             Port = port ?? DefaultPort;
+            AsiceSigningConfiguration = asiceSigningConfiguration;
+            IntegrasjonConfiguration = integrasjonConfiguration;
         }
 
         public string Path { get; }

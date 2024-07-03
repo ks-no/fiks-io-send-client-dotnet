@@ -2,6 +2,7 @@
 /.idea
 .c9/
 *.sublime-workspace
+.vs/
 
 *.swp
 *.*~
@@ -36,3 +37,6 @@ msbuild.err
 msbuild.wrn
 
 appsettings.Development.json
+appsettings.Development.original.json
+appsettings.Test.json
+appsettings.Test2.json
