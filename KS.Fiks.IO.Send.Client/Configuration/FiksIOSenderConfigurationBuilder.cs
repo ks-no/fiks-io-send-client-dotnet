@@ -33,9 +33,21 @@ namespace KS.Fiks.IO.Send.Client.Configuration
             return this;
         }
 
+        public FiksIOSenderConfigurationBuilder WithAsiceSigningConfiguration(AsiceSigningConfiguration asiceSigningConfiguration)
+        {
+            _asiceSigningConfiguration = asiceSigningConfiguration;
+            return this;
+        }
+
         public FiksIOSenderConfigurationBuilder WithFiksIntegrasjonConfiguration(Guid fiksIntegrasjonId, string fiksIntegrasjonPassword)
         {
             _integrasjonConfiguration = new IntegrasjonConfiguration(fiksIntegrasjonId, fiksIntegrasjonPassword);
+            return this;
+        }
+
+        public FiksIOSenderConfigurationBuilder WithFiksIntegrasjonConfiguration(IntegrasjonConfiguration integrasjonConfiguration)
+        {
+            _integrasjonConfiguration = integrasjonConfiguration;
             return this;
         }
 
