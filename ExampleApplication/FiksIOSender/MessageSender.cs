@@ -23,7 +23,9 @@ public class MessageSender
                 "MessageSender - sending messagetype {MessageType} to account id: {AccountId} with klientMeldingId {KlientMeldingId}",
                 messageType, toAccountId, klientMeldingId);
 
-            var payload = new FilePayload("testfile.txt");
+            await using var stream = new FileStream("testfile.txt", FileMode.Open);
+            var payload = new StreamPayload(stream, "testfile.txt");
+            
             var metaData = new MeldingSpesifikasjonApiModel(
                 _appSettings.FiksIoAccountId,
                 toAccountId,
