@@ -39,6 +39,7 @@ namespace KS.Fiks.IO.Send.Client.Tests
         public MeldingSpesifikasjonApiModel DefaultMessage =>
             new MeldingSpesifikasjonApiModel(
                 avsenderKontoId: Guid.NewGuid(),
+                svarPaMelding: Guid.NewGuid(),
                 mottakerKontoId: Guid.NewGuid(),
                 meldingType: "defaultType",
                 ttl: 100,

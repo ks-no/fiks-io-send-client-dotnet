@@ -126,6 +126,7 @@ namespace KS.Fiks.IO.Send.Client
 
         public async Task<SendtMeldingApiModel> Send(MeldingSpesifikasjonApiModel metaData, Stream data)
         {
+            metaData.Validate();
             var response = await SendDataWithPost(metaData, data).ConfigureAwait(false);
 
             await ThrowIfUnauthorized(response).ConfigureAwait(false);

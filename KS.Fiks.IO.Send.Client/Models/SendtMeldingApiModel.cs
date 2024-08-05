@@ -29,5 +29,7 @@ namespace KS.Fiks.IO.Send.Client.Models
 
         [JsonProperty("headere")]
         public Dictionary<string, string> Headere { get; set; }
+
     }
+
 }
