@@ -6,12 +6,12 @@ using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Web;
-using FluentAssertions;
 using KS.Fiks.IO.Send.Client.Exceptions;
 using KS.Fiks.IO.Send.Client.Models;
 using Moq;
 using Moq.Protected;
 using Org.BouncyCastle.X509;
+using Shouldly;
 using Xunit;
 
 namespace KS.Fiks.IO.Send.Client.Tests.Catalog;
@@ -41,13 +41,13 @@ public class CatalogHandlerTests
 
         var result = await sut.Lookup(_fixture.DefaultLookupRequest).ConfigureAwait(false);
 
-        result.FiksOrgId.Should().Be(expectedAccount.FiksOrgId);
-        result.FiksOrgNavn.Should().Be(expectedAccount.FiksOrgNavn);
-        result.KontoId.Should().Be(expectedAccount.KontoId);
-        result.KontoNavn.Should().Be(expectedAccount.KontoNavn);
-        result.IsGyldigAvsender.Should().Be(expectedAccount.Status.GyldigAvsender);
-        result.IsGyldigMottaker.Should().Be(expectedAccount.Status.GyldigMottaker);
-        result.AntallKonsumenter.Should().Be(expectedAccount.Status.AntallKonsumenter);
+        result.FiksOrgId.ShouldBe(expectedAccount.FiksOrgId);
+        result.FiksOrgNavn.ShouldBe(expectedAccount.FiksOrgNavn);
+        result.KontoId.ShouldBe(expectedAccount.KontoId);
+        result.KontoNavn.ShouldBe(expectedAccount.KontoNavn);
+        result.IsGyldigAvsender.ShouldBe(expectedAccount.Status.GyldigAvsender);
+        result.IsGyldigMottaker.ShouldBe(expectedAccount.Status.GyldigMottaker);
+        result.AntallKonsumenter.ShouldBe(expectedAccount.Status.AntallKonsumenter);
     }
 
     [Fact]
@@ -64,10 +64,10 @@ public class CatalogHandlerTests
 
         var result = await sut.GetStatus(_fixture.DefaultKontoId).ConfigureAwait(false);
 
-        result.IsGyldigAvsender.Should().Be(expectedStatus.GyldigAvsender);
-        result.IsGyldigMottaker.Should().Be(expectedStatus.GyldigMottaker);
-        result.AntallKonsumenter.Should().Be(expectedStatus.AntallKonsumenter);
-        result.Melding.Should().Be(expectedStatus.Melding);
+        result.IsGyldigAvsender.ShouldBe(expectedStatus.GyldigAvsender);
+        result.IsGyldigMottaker.ShouldBe(expectedStatus.GyldigMottaker);
+        result.AntallKonsumenter.ShouldBe(expectedStatus.AntallKonsumenter);
+        result.Melding.ShouldBe(expectedStatus.Melding);
     }
 
     [Fact]
@@ -205,7 +205,7 @@ public class CatalogHandlerTests
     {
         var sut = _fixture.WithPublicKeyResponse(_fixture.CreateDefaultPublicKey()).CreateSut();
         var result = await sut.GetPublicKey(Guid.NewGuid()).ConfigureAwait(false);
-        result.Should().BeOfType<X509Certificate>();
+        result.ShouldBeOfType<X509Certificate>();
     }
 
     [Fact]
@@ -231,14 +231,14 @@ public class CatalogHandlerTests
 
         var result = await sut.GetKonto(Guid.NewGuid()).ConfigureAwait(true);
 
-        result.FiksOrgId.Should().Be(expectedAccount.FiksOrgId);
-        result.FiksOrgNavn.Should().Be(expectedAccount.FiksOrgNavn);
-        result.Organisasjonsnummer.Should().Be(expectedAccount.Organisasjonsnummer);
-        result.KontoId.Should().Be(expectedAccount.KontoId);
-        result.KontoNavn.Should().Be(expectedAccount.KontoNavn);
-        result.Kommunenummer.Should().Be(expectedAccount.Kommunenummer);
-        result.IsGyldigAvsender.Should().Be(expectedAccount.Status.GyldigAvsender);
-        result.IsGyldigMottaker.Should().Be(expectedAccount.Status.GyldigMottaker);
-        result.AntallKonsumenter.Should().Be(expectedAccount.Status.AntallKonsumenter);
+        result.FiksOrgId.ShouldBe(expectedAccount.FiksOrgId);
+        result.FiksOrgNavn.ShouldBe(expectedAccount.FiksOrgNavn);
+        result.Organisasjonsnummer.ShouldBe(expectedAccount.Organisasjonsnummer);
+        result.KontoId.ShouldBe(expectedAccount.KontoId);
+        result.KontoNavn.ShouldBe(expectedAccount.KontoNavn);
+        result.Kommunenummer.ShouldBe(expectedAccount.Kommunenummer);
+        result.IsGyldigAvsender.ShouldBe(expectedAccount.Status.GyldigAvsender);
+        result.IsGyldigMottaker.ShouldBe(expectedAccount.Status.GyldigMottaker);
+        result.AntallKonsumenter.ShouldBe(expectedAccount.Status.AntallKonsumenter);
     }
 }
