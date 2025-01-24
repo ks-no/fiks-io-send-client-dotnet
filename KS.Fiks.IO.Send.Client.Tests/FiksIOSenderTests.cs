@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -8,12 +7,12 @@ using System.Net.Http;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using FluentAssertions;
 using KS.Fiks.IO.Send.Client.Exceptions;
 using KS.Fiks.IO.Send.Client.Models;
 using Moq;
 using Moq.Protected;
 using Newtonsoft.Json;
+using Shouldly;
 using Xunit;
 
 namespace KS.Fiks.IO.Send.Client.Tests
@@ -33,7 +32,7 @@ namespace KS.Fiks.IO.Send.Client.Tests
             var sut = _fixture.CreateSut();
             var result = await sut.Send(_fixture.DefaultMessage, new MemoryStream()).ConfigureAwait(false);
 
-            result.Should().BeOfType<SendtMeldingApiModel>();
+            result.ShouldBeOfType<SendtMeldingApiModel>();
         }
 
         [Fact]
@@ -42,7 +41,7 @@ namespace KS.Fiks.IO.Send.Client.Tests
             var sut = _fixture.CreateSut();
             var result = await sut.Send(_fixture.DefaultMessage).ConfigureAwait(false);
 
-            result.Should().BeOfType<SendtMeldingApiModel>();
+            result.ShouldBeOfType<SendtMeldingApiModel>();
         }
 
         [Fact]
@@ -214,13 +213,13 @@ namespace KS.Fiks.IO.Send.Client.Tests
 
             var sut = _fixture.WithReturnValue(expectedResult).CreateSut();
             var result = await sut.Send(_fixture.DefaultMessage, new MemoryStream()).ConfigureAwait(false);
-            result.MeldingId.Should().Be(expectedResult.MeldingId);
-            result.MeldingType.Should().Be(expectedResult.MeldingType);
-            result.AvsenderKontoId.Should().Be(expectedResult.AvsenderKontoId);
-            result.MottakerKontoId.Should().Be(expectedResult.MottakerKontoId);
-            result.Ttl.Should().Be(expectedResult.Ttl);
-            result.DokumentlagerId.Should().Be(expectedResult.DokumentlagerId);
-            result.SvarPaMelding.Should().Be(expectedResult.SvarPaMelding);
+            result.MeldingId.ShouldBe(expectedResult.MeldingId);
+            result.MeldingType.ShouldBe(expectedResult.MeldingType);
+            result.AvsenderKontoId.ShouldBe(expectedResult.AvsenderKontoId);
+            result.MottakerKontoId.ShouldBe(expectedResult.MottakerKontoId);
+            result.Ttl.ShouldBe(expectedResult.Ttl);
+            result.DokumentlagerId.ShouldBe(expectedResult.DokumentlagerId);
+            result.SvarPaMelding.ShouldBe(expectedResult.SvarPaMelding);
         }
 
         [Fact]

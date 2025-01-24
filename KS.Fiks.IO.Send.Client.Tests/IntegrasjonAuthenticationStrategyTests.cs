@@ -1,7 +1,7 @@
 using System;
 using System.Threading.Tasks;
-using FluentAssertions;
 using Moq;
+using Shouldly;
 using Xunit;
 
 namespace KS.Fiks.IO.Send.Client.Tests
@@ -22,9 +22,9 @@ namespace KS.Fiks.IO.Send.Client.Tests
 
             var headers = await sut.GetAuthorizationHeaders().ConfigureAwait(false);
 
-            headers.ContainsKey("AUTHORIZATION").Should().BeTrue();
-            headers.ContainsKey("IntegrasjonId").Should().BeTrue();
-            headers.ContainsKey("IntegrasjonPassord").Should().BeTrue();
+            headers.ContainsKey("AUTHORIZATION").ShouldBeTrue();
+            headers.ContainsKey("IntegrasjonId").ShouldBeTrue();
+            headers.ContainsKey("IntegrasjonPassord").ShouldBeTrue();
         }
 
         [Fact]
@@ -33,7 +33,7 @@ namespace KS.Fiks.IO.Send.Client.Tests
             var expectedId = Guid.NewGuid();
             var sut = _fixture.WithIntegrasjonId(expectedId).CreateSut();
             var headers = await sut.GetAuthorizationHeaders().ConfigureAwait(false);
-            headers["IntegrasjonId"].Should().Be(expectedId.ToString());
+            headers["IntegrasjonId"].ShouldBe(expectedId.ToString());
         }
 
         [Fact]
@@ -42,7 +42,7 @@ namespace KS.Fiks.IO.Send.Client.Tests
             var expectedPassword = "ExpectedPassword";
             var sut = _fixture.WithIntegrasjonPassword(expectedPassword).CreateSut();
             var headers = await sut.GetAuthorizationHeaders().ConfigureAwait(false);
-            headers["IntegrasjonPassord"].Should().Be(expectedPassword);
+            headers["IntegrasjonPassord"].ShouldBe(expectedPassword);
         }
 
         [Fact]
