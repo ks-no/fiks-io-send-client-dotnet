@@ -7,8 +7,11 @@ using System.Net.Http;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using KS.Fiks.IO.Crypto.Models;
+using KS.Fiks.IO.Send.Client.Authentication;
 using KS.Fiks.IO.Send.Client.Exceptions;
 using KS.Fiks.IO.Send.Client.Models;
+using Ks.Fiks.Maskinporten.Client;
 using Moq;
 using Moq.Protected;
 using Newtonsoft.Json;
@@ -298,6 +301,46 @@ namespace KS.Fiks.IO.Send.Client.Tests
                             async () => await sut.Send(_fixture.DefaultMessage, new MemoryStream())
                                                  .ConfigureAwait(false))
                         .ConfigureAwait(false);
+        }
+
+        [Theory]
+        [InlineData("send1")]
+        [InlineData("send2")]
+        [InlineData("sendEncrypted1")]
+        [InlineData("sendEncrypted2")]
+        public async Task AllEndpointsAllowCancellation(string methodId)
+        {
+            // Arrange
+            var maskinportenMock = new Mock<IMaskinportenClient>();
+            maskinportenMock.Setup(x => x.GetAccessToken(It.IsAny<string>())).ReturnsAsync(new MaskinportenToken(string.Empty, 300));
+            var authStrategy = new IntegrasjonAuthenticationStrategy(maskinportenMock.Object, Guid.Empty, string.Empty);
+            var sut = _fixture.CreateSut(authStrategy);
+            var cts = new CancellationTokenSource();
+            await cts.CancelAsync();
+
+            Func<Task<SendtMeldingApiModel>> method = methodId switch
+            {
+                "send1" => () => sut.Send(_fixture.DefaultMessage, cts.Token),
+                "send2" => () => sut.Send(_fixture.DefaultMessage, PayloadWrapper.CreateDummy().Payload, cts.Token),
+                "sendEncrypted1" => () => sut.SendWithEncryptedData(_fixture.DefaultMessage, PayloadWrapper.CreateDummy(), cts.Token),
+                "sendEncrypted2" => () => sut.SendWithEncryptedData(_fixture.DefaultMessage, [PayloadWrapper.CreateDummy()], cts.Token),
+                _ => throw new ArgumentOutOfRangeException(nameof(methodId))
+            };
+
+            // Act
+            var ex = await Record.ExceptionAsync(method);
+
+            // Assert
+            Assert.IsType<TaskCanceledException>(ex);
+            Assert.Contains("canceled", ex.Message, StringComparison.OrdinalIgnoreCase);
+        }
+    }
+
+    internal sealed record PayloadWrapper(string Filename, Stream Payload) : IPayload
+    {
+        public static PayloadWrapper CreateDummy()
+        {
+            return new PayloadWrapper("dummy.txt", new MemoryStream("The content"u8.ToArray()));
         }
     }
 }

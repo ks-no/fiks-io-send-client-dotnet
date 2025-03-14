@@ -5,6 +5,7 @@ using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using KS.Fiks.IO.Crypto.Asic;
 using KS.Fiks.IO.Crypto.Models;
@@ -99,21 +100,24 @@ namespace KS.Fiks.IO.Send.Client
 
         public async Task<SendtMeldingApiModel> SendWithEncryptedData(
             MeldingSpesifikasjonApiModel metaData,
-            IPayload payload)
+            IPayload payload,
+            CancellationToken cancellationToken = default)
         {
-            return await SendEncryptedData(metaData, new List<IPayload> { payload }).ConfigureAwait(false);
+            return await SendEncryptedData(metaData, new List<IPayload> { payload }, cancellationToken).ConfigureAwait(false);
         }
 
         public async Task<SendtMeldingApiModel> SendWithEncryptedData(
             MeldingSpesifikasjonApiModel metaData,
-            IList<IPayload> payload)
+            IList<IPayload> payload,
+            CancellationToken cancellationToken = default)
         {
-            return await SendEncryptedData(metaData, payload).ConfigureAwait(false);
+            return await SendEncryptedData(metaData, payload, cancellationToken).ConfigureAwait(false);
         }
 
         private async Task<SendtMeldingApiModel> SendEncryptedData(
             MeldingSpesifikasjonApiModel metaData,
-            IList<IPayload> payload)
+            IList<IPayload> payload,
+            CancellationToken cancellationToken)
         {
             if (_publicKeyProvider == null || _asicEncrypter == null)
             {
@@ -121,12 +125,15 @@ namespace KS.Fiks.IO.Send.Client
             }
 
             var encryptedPayload = await GetEncryptedPayload(metaData.MottakerKontoId, payload).ConfigureAwait(false);
-            return await Send(metaData, encryptedPayload).ConfigureAwait(false);
+            return await Send(metaData, encryptedPayload, cancellationToken).ConfigureAwait(false);
         }
 
-        public async Task<SendtMeldingApiModel> Send(MeldingSpesifikasjonApiModel metaData, Stream data)
+        public async Task<SendtMeldingApiModel> Send(
+            MeldingSpesifikasjonApiModel metaData,
+            Stream data,
+            CancellationToken cancellationToken = default)
         {
-            var response = await SendDataWithPost(metaData, data).ConfigureAwait(false);
+            var response = await SendDataWithPost(metaData, data, cancellationToken).ConfigureAwait(false);
 
             await ThrowIfUnauthorized(response).ConfigureAwait(false);
             await ThrowIfResponseIsInvalid(response).ConfigureAwait(false);
@@ -134,12 +141,17 @@ namespace KS.Fiks.IO.Send.Client
             return await DeserializeResponse(response).ConfigureAwait(false);
         }
 
-        public async Task<SendtMeldingApiModel> Send(MeldingSpesifikasjonApiModel metaData)
+        public async Task<SendtMeldingApiModel> Send(
+            MeldingSpesifikasjonApiModel metaData,
+            CancellationToken cancellationToken = default)
         {
-            return await Send(metaData, null).ConfigureAwait(false);
+            return await Send(metaData, null, cancellationToken).ConfigureAwait(false);
         }
 
-        private async Task<HttpResponseMessage> SendDataWithPost(MeldingSpesifikasjonApiModel metaData, Stream data)
+        private async Task<HttpResponseMessage> SendDataWithPost(
+            MeldingSpesifikasjonApiModel metaData,
+            Stream data,
+            CancellationToken cancellationToken)
         {
             var requestMessage = new HttpRequestMessage(HttpMethod.Post, CreateUri());
             foreach (var keyValuePair in await _authenticationStrategy
@@ -150,7 +162,7 @@ namespace KS.Fiks.IO.Send.Client
 
             requestMessage.Content = CreateRequestContent(metaData, data);
 
-            return await _httpClient.SendAsync(requestMessage).ConfigureAwait(false);
+            return await _httpClient.SendAsync(requestMessage, cancellationToken).ConfigureAwait(false);
         }
 
         private MultipartFormDataContent CreateRequestContent(MeldingSpesifikasjonApiModel metaData, Stream data)
