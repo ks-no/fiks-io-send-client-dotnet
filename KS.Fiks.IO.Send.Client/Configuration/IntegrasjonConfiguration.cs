@@ -9,7 +9,7 @@ namespace KS.Fiks.IO.Send.Client.Configuration
         public IntegrasjonConfiguration(Guid integrasjonId, string integrasjonPassord, string scope = null)
         {
             IntegrasjonId = integrasjonId;
-            IntegrasjonPassord = integrasjonPassord;
+            IntegrasjonPassord = integrasjonPassord.Trim();
             Scope = scope ?? DefaultScope;
         }
 
