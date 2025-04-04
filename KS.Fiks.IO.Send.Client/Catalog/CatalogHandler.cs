@@ -138,28 +138,32 @@ namespace KS.Fiks.IO.Send.Client.Catalog
 
         private async Task<T> GetAsModel<T>(Uri requestUri, bool authenticated = true)
         {
-            using var requestMessage = new HttpRequestMessage(HttpMethod.Get, requestUri);
-            if (authenticated)
+            using (var requestMessage = new HttpRequestMessage(HttpMethod.Get, requestUri))
             {
-                var accessToken = await _maskinportenClient.GetAccessToken(_integrasjonConfiguration.Scope)
-                    .ConfigureAwait(false);
+                if (authenticated)
+                {
+                    var accessToken = await _maskinportenClient.GetAccessToken(_integrasjonConfiguration.Scope)
+                        .ConfigureAwait(false);
 
-                requestMessage.Headers.Add(
-                    "integrasjonId",
-                    _integrasjonConfiguration.IntegrasjonId.ToString());
+                    requestMessage.Headers.Add(
+                        "integrasjonId",
+                        _integrasjonConfiguration.IntegrasjonId.ToString());
 
-                requestMessage.Headers.Add(
-                    "integrasjonPassord",
-                    _integrasjonConfiguration.IntegrasjonPassord);
-                requestMessage.Headers.Authorization =
-                    new AuthenticationHeaderValue("Bearer", accessToken.Token);
+                    requestMessage.Headers.Add(
+                        "integrasjonPassord",
+                        _integrasjonConfiguration.IntegrasjonPassord);
+
+                    requestMessage.Headers.Authorization =
+                        new AuthenticationHeaderValue("Bearer", accessToken.Token);
+                }
+
+                var response = await _httpClient.SendAsync(requestMessage).ConfigureAwait(false);
+
+                await ThrowIfResponseIsInvalid(response, requestUri).ConfigureAwait(false);
+
+                var responseAsJsonString = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+                return JsonConvert.DeserializeObject<T>(responseAsJsonString);
             }
-
-            var response = await _httpClient.SendAsync(requestMessage).ConfigureAwait(false);
-
-            await ThrowIfResponseIsInvalid(response, requestUri).ConfigureAwait(false);
-            var responseAsJsonString = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-            return JsonConvert.DeserializeObject<T>(responseAsJsonString);
         }
     }
 }
