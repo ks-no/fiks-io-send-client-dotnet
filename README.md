@@ -5,7 +5,7 @@
 [![GitHub issues](https://img.shields.io/github/issues-raw/ks-no/fiks-io-send-client-dotnet.svg)](//github.com/ks-no/fiks-io-send-client-dotnet/issues)
 
 ## About this library
-This is a .NET library compatible with _[.NET Standard 2.1](https://docs.microsoft.com/en-us/dotnet/standard/net-standard)_ for sending messages to the Fiks platform. 
+This is a .NET library compatible with _[.NET Standard 2.1](https://docs.microsoft.com/en-us/dotnet/standard/net-standard)_  and _[.NET Standard 2.0](https://learn.microsoft.com/en-us/dotnet/standard/net-standard?tabs=net-standard-2-0)_ for sending messages to the Fiks platform. 
 The library provides functionality to send messages to the Fiks platform using the Fiks IO Send API. The library supports sending messages with and without ASiC-E encryption.
 
 ## Getting Started
