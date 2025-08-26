@@ -19,9 +19,6 @@ jobs:
         with:
           submodules: true
 
-      - name: Print environment
-        run: printenv
-
       - name: .NET SDK info
         run: dotnet --info
 
