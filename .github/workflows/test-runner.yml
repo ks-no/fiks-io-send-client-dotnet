@@ -8,11 +8,6 @@ on:
 jobs:
   build:
     runs-on: [self-hosted, arm64]
-    env:
-      ARTIFACTORY_USERNAME: ${{ secrets.ARTIFACTORY_USERNAME }}
-      ARTIFACTORY_PASSWORD: ${{ secrets.ARTIFACTORY_PASSWORD }}
-      #CODE_SIGN_CERT_BASE64: ${{ secrets.CODE_SIGN_CERT_BASE64 }}
-      #CODE_SIGN_PFX_PASS: ${{ secrets.CODE_SIGN_PFX_PASS }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
