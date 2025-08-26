@@ -3,7 +3,7 @@ name: Test Runner
 on:
   push:
     branches:
-    - github-actions 
+    - github-actionss
 
 jobs:
   build:
