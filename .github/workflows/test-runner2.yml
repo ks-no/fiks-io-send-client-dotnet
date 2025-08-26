@@ -5,16 +5,16 @@ on:
     - github-actions
 
 jobs:
-    build:
-        runs-on: [self-hosted, arm64]
-        steps:
-        - name: Checkout
-          uses: actions/checkout@v4
-          with:
-            submodules: true
+  build:
+    runs-on: [self-hosted, arm64]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+      
+      - name: Print environment
+        run: printenv
 
-        - name: Print environment
-          run: printenv
-
-        - name: .NET SDK info
-          run: dotnet --info
+      - name: .NET SDK info
+        run: dotnet --info
