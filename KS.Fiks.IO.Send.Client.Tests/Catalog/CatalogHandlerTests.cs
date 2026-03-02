@@ -34,7 +34,8 @@ public class CatalogHandlerTests
                 Melding = "No melding",
                 GyldigAvsender = true,
                 GyldigMottaker = false,
-                AntallKonsumenter = 3
+                AntallKonsumenter = 3,
+                AntallUavhentedeMeldinger = 1
             }
         };
         var sut = _fixture.WithAccountResponse(expectedAccount).CreateSut();
@@ -48,6 +49,7 @@ public class CatalogHandlerTests
         result.IsGyldigAvsender.ShouldBe(expectedAccount.Status.GyldigAvsender);
         result.IsGyldigMottaker.ShouldBe(expectedAccount.Status.GyldigMottaker);
         result.AntallKonsumenter.ShouldBe(expectedAccount.Status.AntallKonsumenter);
+        result.AntallUavhentedeMeldinger.ShouldBe(expectedAccount.Status.AntallUavhentedeMeldinger);
     }
 
     [Fact]
@@ -58,7 +60,8 @@ public class CatalogHandlerTests
             Melding = "No melding",
             GyldigAvsender = true,
             GyldigMottaker = false,
-            AntallKonsumenter = 3
+            AntallKonsumenter = 3,
+            AntallUavhentedeMeldinger = 5
         };
         var sut = _fixture.WithStatusResponse(expectedStatus).CreateSut();
 
@@ -67,6 +70,7 @@ public class CatalogHandlerTests
         result.IsGyldigAvsender.ShouldBe(expectedStatus.GyldigAvsender);
         result.IsGyldigMottaker.ShouldBe(expectedStatus.GyldigMottaker);
         result.AntallKonsumenter.ShouldBe(expectedStatus.AntallKonsumenter);
+        result.AntallUavhentedeMeldinger.ShouldBe(expectedStatus.AntallUavhentedeMeldinger);
         result.Melding.ShouldBe(expectedStatus.Melding);
     }
 
@@ -224,7 +228,8 @@ public class CatalogHandlerTests
                 Melding = "Melding",
                 GyldigAvsender = true,
                 GyldigMottaker = false,
-                AntallKonsumenter = 9
+                AntallKonsumenter = 9,
+                AntallUavhentedeMeldinger = 10
             }
         };
         var sut = _fixture.WithAccountResponse(expectedAccount).CreateSut();
@@ -240,5 +245,6 @@ public class CatalogHandlerTests
         result.IsGyldigAvsender.ShouldBe(expectedAccount.Status.GyldigAvsender);
         result.IsGyldigMottaker.ShouldBe(expectedAccount.Status.GyldigMottaker);
         result.AntallKonsumenter.ShouldBe(expectedAccount.Status.AntallKonsumenter);
+        result.AntallUavhentedeMeldinger.ShouldBe(expectedAccount.Status.AntallUavhentedeMeldinger);
     }
 }
