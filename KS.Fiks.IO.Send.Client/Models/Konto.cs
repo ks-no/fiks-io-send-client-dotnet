@@ -22,6 +22,8 @@ namespace KS.Fiks.IO.Send.Client.Models
 
         public long AntallKonsumenter { get; set; }
 
+        public long AntallUavhentedeMeldinger { get; set; }
+
         internal static Konto FromKatalogModel(KatalogKonto katalogKonto)
         {
             return new Konto
@@ -34,7 +36,8 @@ namespace KS.Fiks.IO.Send.Client.Models
                 KontoNavn = katalogKonto.KontoNavn,
                 IsGyldigAvsender = katalogKonto.Status.GyldigAvsender,
                 IsGyldigMottaker = katalogKonto.Status.GyldigMottaker,
-                AntallKonsumenter = katalogKonto.Status.AntallKonsumenter
+                AntallKonsumenter = katalogKonto.Status.AntallKonsumenter,
+                AntallUavhentedeMeldinger = katalogKonto.Status.AntallUavhentedeMeldinger
             };
         }
     }

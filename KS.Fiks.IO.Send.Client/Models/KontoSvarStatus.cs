@@ -15,5 +15,8 @@ namespace KS.Fiks.IO.Send.Client.Models
 
         [JsonProperty("melding")]
         public string Melding { get; set; }
+
+        [JsonProperty("antallUavhentedeMeldinger")]
+        public long AntallUavhentedeMeldinger { get; set; }
     }
 }

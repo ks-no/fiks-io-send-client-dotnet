@@ -8,6 +8,8 @@ namespace KS.Fiks.IO.Send.Client.Models
 
         public long AntallKonsumenter { get; set; }
 
+        public long AntallUavhentedeMeldinger { get; set; }
+
         public string Melding { get; set; }
 
         internal static Status FromKontoSvarStatusModel(KontoSvarStatus kontoSvarStatus)
@@ -17,7 +19,8 @@ namespace KS.Fiks.IO.Send.Client.Models
                 IsGyldigAvsender = kontoSvarStatus.GyldigAvsender,
                 IsGyldigMottaker = kontoSvarStatus.GyldigMottaker,
                 AntallKonsumenter = kontoSvarStatus.AntallKonsumenter,
-                Melding = kontoSvarStatus.Melding
+                Melding = kontoSvarStatus.Melding,
+                AntallUavhentedeMeldinger = kontoSvarStatus.AntallUavhentedeMeldinger
             };
         }
     }
