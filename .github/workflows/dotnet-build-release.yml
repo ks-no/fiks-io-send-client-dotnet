@@ -93,7 +93,7 @@ jobs:
           fail-on-error: false
 
       - name: Generate SBOM
-        if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+        if: github.ref == 'refs/heads/main'
         uses: ks-no/github-actions-public/dotnet-generate-sbom@main
         with:
           version: ${{ needs.initialize.outputs.full-version }}
@@ -263,7 +263,7 @@ jobs:
   release:
     name: Release
     needs: [initialize, build-linux, build-windows, push-nuget-org]
-    if: github.event.inputs.isRelease == 'true' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
+    if: github.event.inputs.isRelease == 'true' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
 
     steps:

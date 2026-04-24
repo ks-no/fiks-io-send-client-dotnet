@@ -1,11 +1,11 @@
 # fiks-io-send-client-dotnet
 
-[![MIT license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/ks-no/fiks-io-send-client-dotnet/blob/master/LICENSE)
+[![MIT license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/ks-no/fiks-io-send-client-dotnet/blob/main/LICENSE)
 [![Nuget](https://img.shields.io/nuget/vpre/KS.fiks.io.send.client.svg)](https://www.nuget.org/packages/KS.Fiks.IO.Send.Client)
 [![GitHub issues](https://img.shields.io/github/issues-raw/ks-no/fiks-io-send-client-dotnet.svg)](//github.com/ks-no/fiks-io-send-client-dotnet/issues)
 
 ## About this library
-This is a .NET library compatible with _[.NET Standard 2.1](https://docs.microsoft.com/en-us/dotnet/standard/net-standard)_  and _[.NET Standard 2.0](https://learn.microsoft.com/en-us/dotnet/standard/net-standard?tabs=net-standard-2-0)_ for sending messages to the Fiks platform. 
+This is a .NET library compatible with **.NET 8**, _[.NET Standard 2.1](https://docs.microsoft.com/en-us/dotnet/standard/net-standard)_, and _[.NET Standard 2.0](https://learn.microsoft.com/en-us/dotnet/standard/net-standard?tabs=net-standard-2-0)_ for sending messages to the Fiks platform.
 The library provides functionality to send messages to the Fiks platform using the Fiks IO Send API. The library supports sending messages with and without ASiC-E encryption.
 
 ## Getting Started
@@ -15,6 +15,19 @@ To get started with KS.Fiks.IO.Send.Client, add the NuGet package to your .NET p
 ```sh
 dotnet add package KS.Fiks.IO.Send.Client --version <version_number>
 ```
+
+## Local Development
+
+**Prerequisites:** .NET 8 SDK
+
+```sh
+git clone https://github.com/ks-no/fiks-io-send-client-dotnet.git
+cd fiks-io-send-client-dotnet
+dotnet build
+dotnet test
+```
+
+An [ExampleApplication](ExampleApplication/) is included to demonstrate typical usage.
 
 ## Usage Example
 
@@ -45,7 +58,7 @@ public class SendMessageExample
         var sentMelding = await sender.Send(metaData, dataStream);
         
         // With ASiC-E
-        var payload = new Payload("testfile.txt")
+        var payload = new Payload("testfile.txt");
         var sentMelding = await sender.SendWithEncryptedData(metaData, payload);
         
         Console.WriteLine($"Message sent with ID: {sendtMelding.MeldingId}");
@@ -84,7 +97,7 @@ configurationBuilder.WithFiksIntegrasjonConfiguration(fiksIntegrasjonId, fiksInt
 ```csharp
 configurationBuilder.WithApiConfiguration(path, scheme, host, hostPort);
 ```
-Step 5: Build the Configuration
+### Step 5: Build the Configuration
 ```csharp
 var configuration = configurationBuilder.Build();
 ```
