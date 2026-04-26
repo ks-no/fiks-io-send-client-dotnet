@@ -2,6 +2,7 @@ using System;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Text;
 using System.Threading.Tasks;
 using KS.Fiks.Crypto.BouncyCastle;
 using KS.Fiks.IO.Send.Client.Configuration;
@@ -74,6 +75,35 @@ namespace KS.Fiks.IO.Send.Client.Catalog
             var responseAsPublicKeyModel = await GetAsModel<KontoOffentligNokkel>(requestUri, authenticated: false)
                 .ConfigureAwait(false);
             return X509CertificateReader.ExtractCertificate(responseAsPublicKeyModel.Nokkel);
+        }
+
+        public async Task UploadPublicKey(Guid kontoId, string pemString)
+        {
+            var uri = CreatePublicKeyUri(kontoId);
+
+            using (var requestMessage = new HttpRequestMessage(HttpMethod.Put, uri))
+            {
+                var accessToken = await _maskinportenClient.GetAccessToken(_integrasjonConfiguration.Scope)
+                    .ConfigureAwait(false);
+
+                requestMessage.Headers.Add("integrasjonId", _integrasjonConfiguration.IntegrasjonId.ToString());
+                requestMessage.Headers.Add("integrasjonPassord", _integrasjonConfiguration.IntegrasjonPassord);
+                requestMessage.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken.Token);
+
+                requestMessage.Content = new StringContent(
+                    JsonConvert.SerializeObject(new { nokkel = pemString }),
+                    Encoding.UTF8,
+                    "application/json");
+
+                var response = await _httpClient.SendAsync(requestMessage).ConfigureAwait(false);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    var content = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+                    throw new FiksIOSendUnexpectedResponseException(
+                        $"Got unexpected HTTP Status code {response.StatusCode} from {uri}. Content: {content}.");
+                }
+            }
         }
 
         private static async Task ThrowIfResponseIsInvalid(HttpResponseMessage response, Uri requestUri)

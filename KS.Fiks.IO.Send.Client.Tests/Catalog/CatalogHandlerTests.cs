@@ -3,9 +3,12 @@ using System.Globalization;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Web;
+using Moq.Protected;
+using Newtonsoft.Json.Linq;
 using KS.Fiks.IO.Send.Client.Exceptions;
 using KS.Fiks.IO.Send.Client.Models;
 using Moq;
@@ -246,5 +249,124 @@ public class CatalogHandlerTests
         result.IsGyldigMottaker.ShouldBe(expectedAccount.Status.GyldigMottaker);
         result.AntallKonsumenter.ShouldBe(expectedAccount.Status.AntallKonsumenter);
         result.AntallUavhentedeMeldinger.ShouldBe(expectedAccount.Status.AntallUavhentedeMeldinger);
+    }
+
+    [Fact]
+    public async Task UploadPublicKeyCallsPutToExpectedUri()
+    {
+        var host = "api.fiks.dev.ks.no";
+        var port = 443;
+        var scheme = "https";
+        var path = "/svarinn2/katalog/api/v1";
+        var kontoId = Guid.NewGuid();
+
+        var sut = _fixture.WithHost(host).WithPort(port).WithScheme(scheme).WithPath(path).CreateSut();
+
+        await sut.UploadPublicKey(kontoId, "-----BEGIN CERTIFICATE-----\nTESTDATA\n-----END CERTIFICATE-----");
+
+        _fixture.HttpMessageHandleMock.Protected().Verify(
+            "SendAsync",
+            Times.Exactly(1),
+            ItExpr.Is<HttpRequestMessage>(req =>
+                req.Method == HttpMethod.Put &&
+                req.RequestUri.Port == port &&
+                req.RequestUri.Host == host &&
+                req.RequestUri.Scheme == scheme &&
+                req.RequestUri.AbsolutePath == path + "/kontoer/" + kontoId + "/offentligNokkel"),
+            ItExpr.IsAny<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task UploadPublicKeySendsExpectedJsonBodyWithNokkel()
+    {
+        const string pemString = "-----BEGIN CERTIFICATE-----\nTESTDATA\n-----END CERTIFICATE-----";
+        string capturedBody = null;
+
+        var sut = _fixture.CreateSut();
+
+        _fixture.HttpMessageHandleMock
+            .Protected()
+            .Setup<Task<HttpResponseMessage>>(
+                "SendAsync",
+                ItExpr.IsAny<HttpRequestMessage>(),
+                ItExpr.IsAny<CancellationToken>())
+            .Callback<HttpRequestMessage, CancellationToken>(async (req, _) =>
+                capturedBody = await req.Content.ReadAsStringAsync())
+            .ReturnsAsync(new HttpResponseMessage { StatusCode = HttpStatusCode.OK, Content = new StringContent("{}") });
+
+        await sut.UploadPublicKey(Guid.NewGuid(), pemString);
+
+        capturedBody.ShouldNotBeNull();
+        var json = JObject.Parse(capturedBody);
+        json["nokkel"].Value<string>().ShouldBe(pemString);
+    }
+
+    [Fact]
+    public async Task UploadPublicKeySetsExpectedAuthorizationHeader()
+    {
+        var expectedToken = Guid.NewGuid().ToString();
+        var sut = _fixture.WithAccessToken(expectedToken).CreateSut();
+
+        await sut.UploadPublicKey(Guid.NewGuid(), "pem");
+
+        _fixture.HttpMessageHandleMock.Protected().Verify(
+            "SendAsync",
+            Times.Exactly(1),
+            ItExpr.Is<HttpRequestMessage>(req =>
+                req.Headers.Authorization.Scheme == "Bearer" &&
+                req.Headers.Authorization.Parameter == expectedToken),
+            ItExpr.IsAny<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task UploadPublicKeySetsExpectedIntegrasjonHeaders()
+    {
+        var expectedId = Guid.NewGuid();
+        var expectedPassword = "myIntegrasjonPassword";
+        var sut = _fixture.WithIntegrasjonId(expectedId).WithIntegrasjonPassword(expectedPassword).CreateSut();
+
+        await sut.UploadPublicKey(Guid.NewGuid(), "pem");
+
+        _fixture.HttpMessageHandleMock.Protected().Verify(
+            "SendAsync",
+            Times.Exactly(1),
+            ItExpr.Is<HttpRequestMessage>(req =>
+                req.Headers.GetValues("integrasjonId").FirstOrDefault() == expectedId.ToString() &&
+                req.Headers.GetValues("integrasjonPassord").FirstOrDefault() == expectedPassword),
+            ItExpr.IsAny<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task UploadPublicKeySetsContentTypeApplicationJson()
+    {
+        string capturedContentType = null;
+
+        var sut = _fixture.CreateSut();
+
+        _fixture.HttpMessageHandleMock
+            .Protected()
+            .Setup<Task<HttpResponseMessage>>(
+                "SendAsync",
+                ItExpr.IsAny<HttpRequestMessage>(),
+                ItExpr.IsAny<CancellationToken>())
+            .Callback<HttpRequestMessage, CancellationToken>((req, _) =>
+                capturedContentType = req.Content.Headers.ContentType.MediaType)
+            .ReturnsAsync(new HttpResponseMessage { StatusCode = HttpStatusCode.OK, Content = new StringContent("{}") });
+
+        await sut.UploadPublicKey(Guid.NewGuid(), "pem");
+
+        capturedContentType.ShouldBe("application/json");
+    }
+
+    [Theory]
+    [InlineData(HttpStatusCode.Unauthorized)]
+    [InlineData(HttpStatusCode.NotFound)]
+    [InlineData(HttpStatusCode.InternalServerError)]
+    public async Task UploadPublicKeyThrowsOnNon2xxResponse(HttpStatusCode statusCode)
+    {
+        var sut = _fixture.WithStatusCode(statusCode).CreateSut();
+
+        await Assert.ThrowsAsync<FiksIOSendUnexpectedResponseException>(
+            () => sut.UploadPublicKey(Guid.NewGuid(), "pem"));
     }
 }

@@ -14,5 +14,7 @@ namespace KS.Fiks.IO.Send.Client.Catalog
         Task<X509Certificate> GetPublicKey(Guid receiverAccountId);
 
         Task<Status> GetStatus(Guid receiverAccountId);
+
+        Task UploadPublicKey(Guid kontoId, string pemString);
     }
 }
