@@ -3,16 +3,14 @@ using System.Globalization;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Web;
+using Moq;
 using Moq.Protected;
 using Newtonsoft.Json.Linq;
 using KS.Fiks.IO.Send.Client.Exceptions;
 using KS.Fiks.IO.Send.Client.Models;
-using Moq;
-using Moq.Protected;
 using Org.BouncyCastle.X509;
 using Shouldly;
 using Xunit;
@@ -290,8 +288,8 @@ public class CatalogHandlerTests
                 "SendAsync",
                 ItExpr.IsAny<HttpRequestMessage>(),
                 ItExpr.IsAny<CancellationToken>())
-            .Callback<HttpRequestMessage, CancellationToken>(async (req, _) =>
-                capturedBody = await req.Content.ReadAsStringAsync())
+            .Callback<HttpRequestMessage, CancellationToken>((req, _) =>
+                capturedBody = req.Content.ReadAsStringAsync().GetAwaiter().GetResult())
             .ReturnsAsync(new HttpResponseMessage { StatusCode = HttpStatusCode.OK, Content = new StringContent("{}") });
 
         await sut.UploadPublicKey(Guid.NewGuid(), pemString);

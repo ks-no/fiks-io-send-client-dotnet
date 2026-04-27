@@ -1,5 +1,4 @@
 using System;
-using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
@@ -79,36 +78,37 @@ namespace KS.Fiks.IO.Send.Client.Catalog
 
         public async Task UploadPublicKey(Guid kontoId, string pemString)
         {
+            if (string.IsNullOrEmpty(pemString))
+            {
+                throw new ArgumentException("pemString cannot be null or empty", nameof(pemString));
+            }
+
             var uri = CreatePublicKeyUri(kontoId);
 
             using (var requestMessage = new HttpRequestMessage(HttpMethod.Put, uri))
             {
-                var accessToken = await _maskinportenClient.GetAccessToken(_integrasjonConfiguration.Scope)
-                    .ConfigureAwait(false);
-
-                requestMessage.Headers.Add("integrasjonId", _integrasjonConfiguration.IntegrasjonId.ToString());
-                requestMessage.Headers.Add("integrasjonPassord", _integrasjonConfiguration.IntegrasjonPassord);
-                requestMessage.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken.Token);
+                await AddAuthHeaders(requestMessage).ConfigureAwait(false);
 
                 requestMessage.Content = new StringContent(
                     JsonConvert.SerializeObject(new { nokkel = pemString }),
                     Encoding.UTF8,
                     "application/json");
 
-                var response = await _httpClient.SendAsync(requestMessage).ConfigureAwait(false);
-
-                if (!response.IsSuccessStatusCode)
+                using (var response = await _httpClient.SendAsync(requestMessage).ConfigureAwait(false))
                 {
-                    var content = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-                    throw new FiksIOSendUnexpectedResponseException(
-                        $"Got unexpected HTTP Status code {response.StatusCode} from {uri}. Content: {content}.");
+                    if (!response.IsSuccessStatusCode)
+                    {
+                        var content = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+                        throw new FiksIOSendUnexpectedResponseException(
+                            $"Got unexpected HTTP Status code {response.StatusCode} from {uri}. Content: {content}.");
+                    }
                 }
             }
         }
 
         private static async Task ThrowIfResponseIsInvalid(HttpResponseMessage response, Uri requestUri)
         {
-            if (response.StatusCode != HttpStatusCode.OK)
+            if (response.StatusCode != System.Net.HttpStatusCode.OK)
             {
                 var content = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
                 throw new FiksIOSendUnexpectedResponseException(
@@ -172,19 +172,7 @@ namespace KS.Fiks.IO.Send.Client.Catalog
             {
                 if (authenticated)
                 {
-                    var accessToken = await _maskinportenClient.GetAccessToken(_integrasjonConfiguration.Scope)
-                        .ConfigureAwait(false);
-
-                    requestMessage.Headers.Add(
-                        "integrasjonId",
-                        _integrasjonConfiguration.IntegrasjonId.ToString());
-
-                    requestMessage.Headers.Add(
-                        "integrasjonPassord",
-                        _integrasjonConfiguration.IntegrasjonPassord);
-
-                    requestMessage.Headers.Authorization =
-                        new AuthenticationHeaderValue("Bearer", accessToken.Token);
+                    await AddAuthHeaders(requestMessage).ConfigureAwait(false);
                 }
 
                 var response = await _httpClient.SendAsync(requestMessage).ConfigureAwait(false);
@@ -194,6 +182,16 @@ namespace KS.Fiks.IO.Send.Client.Catalog
                 var responseAsJsonString = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
                 return JsonConvert.DeserializeObject<T>(responseAsJsonString);
             }
+        }
+
+        private async Task AddAuthHeaders(HttpRequestMessage requestMessage)
+        {
+            var accessToken = await _maskinportenClient.GetAccessToken(_integrasjonConfiguration.Scope)
+                .ConfigureAwait(false);
+
+            requestMessage.Headers.Add("integrasjonId", _integrasjonConfiguration.IntegrasjonId.ToString());
+            requestMessage.Headers.Add("integrasjonPassord", _integrasjonConfiguration.IntegrasjonPassord);
+            requestMessage.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken.Token);
         }
     }
 }
