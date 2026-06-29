@@ -214,6 +214,41 @@ public class CatalogHandlerTests
     }
 
     [Fact]
+    public async Task GetPublicKeyThrowsPublicKeyNotFoundExceptionWhenCatalogReturns404()
+    {
+        var sut = _fixture.WithStatusCode(HttpStatusCode.NotFound).CreateSut();
+
+        await Assert.ThrowsAsync<FiksIOSendPublicKeyNotFoundException>(
+                async () => await sut.GetPublicKey(Guid.NewGuid()).ConfigureAwait(false))
+            .ConfigureAwait(false);
+    }
+
+    [Fact]
+    public async Task GetPublicKeyThrowsPublicKeyNotFoundExceptionWhenKeyPayloadIsEmpty()
+    {
+        var sut = _fixture
+            .WithPublicKeyResponse(new KontoOffentligNokkel { Nokkel = null })
+            .CreateSut();
+
+        await Assert.ThrowsAsync<FiksIOSendPublicKeyNotFoundException>(
+                async () => await sut.GetPublicKey(Guid.NewGuid()).ConfigureAwait(false))
+            .ConfigureAwait(false);
+    }
+
+    [Fact]
+    public async Task GetPublicKeyThrowsUnexpectedResponseExceptionOnTransientError()
+    {
+        var sut = _fixture.WithStatusCode(HttpStatusCode.InternalServerError).CreateSut();
+
+        var exception = await Assert.ThrowsAsync<FiksIOSendUnexpectedResponseException>(
+                async () => await sut.GetPublicKey(Guid.NewGuid()).ConfigureAwait(false))
+            .ConfigureAwait(false);
+
+        // A transient failure must not be reported as "key not found".
+        exception.ShouldNotBeOfType<FiksIOSendPublicKeyNotFoundException>();
+    }
+
+    [Fact]
     public async Task GetKontoReturnsExpectedAccount()
     {
         var expectedAccount = new KatalogKonto

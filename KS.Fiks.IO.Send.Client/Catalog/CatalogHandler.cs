@@ -71,9 +71,33 @@ namespace KS.Fiks.IO.Send.Client.Catalog
         public async Task<X509Certificate> GetPublicKey(Guid receiverAccountId)
         {
             var requestUri = CreatePublicKeyUri(receiverAccountId);
-            var responseAsPublicKeyModel = await GetAsModel<KontoOffentligNokkel>(requestUri, authenticated: false)
-                .ConfigureAwait(false);
-            return X509CertificateReader.ExtractCertificate(responseAsPublicKeyModel.Nokkel);
+
+            // GetPublicKey is unauthenticated, so the request is issued directly here (instead of via
+            // GetAsModel) to special-case HTTP 404 / empty payload as "no key registered" without changing
+            // the shared response handling used by the other catalog endpoints.
+            using (var requestMessage = new HttpRequestMessage(HttpMethod.Get, requestUri))
+            {
+                var response = await _httpClient.SendAsync(requestMessage).ConfigureAwait(false);
+
+                if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
+                {
+                    throw new FiksIOSendPublicKeyNotFoundException(
+                        $"No public key is registered in the catalog for account {receiverAccountId}.");
+                }
+
+                await ThrowIfResponseIsInvalid(response, requestUri).ConfigureAwait(false);
+
+                var responseAsJsonString = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+                var responseAsPublicKeyModel = JsonConvert.DeserializeObject<KontoOffentligNokkel>(responseAsJsonString);
+
+                if (string.IsNullOrWhiteSpace(responseAsPublicKeyModel?.Nokkel))
+                {
+                    throw new FiksIOSendPublicKeyNotFoundException(
+                        $"No public key is registered in the catalog for account {receiverAccountId}.");
+                }
+
+                return X509CertificateReader.ExtractCertificate(responseAsPublicKeyModel.Nokkel);
+            }
         }
 
         public async Task UploadPublicKey(Guid kontoId, string pemString)
