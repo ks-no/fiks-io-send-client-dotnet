@@ -6,11 +6,11 @@ using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Web;
+using KS.Fiks.IO.Send.Client.Exceptions;
+using KS.Fiks.IO.Send.Client.Models;
 using Moq;
 using Moq.Protected;
 using Newtonsoft.Json.Linq;
-using KS.Fiks.IO.Send.Client.Exceptions;
-using KS.Fiks.IO.Send.Client.Models;
 using Org.BouncyCastle.X509;
 using Shouldly;
 using Xunit;
@@ -392,14 +392,55 @@ public class CatalogHandlerTests
     }
 
     [Theory]
-    [InlineData(HttpStatusCode.Unauthorized)]
-    [InlineData(HttpStatusCode.NotFound)]
+    [InlineData(HttpStatusCode.BadRequest)]
     [InlineData(HttpStatusCode.InternalServerError)]
-    public async Task UploadPublicKeyThrowsOnNon2xxResponse(HttpStatusCode statusCode)
+    [InlineData(HttpStatusCode.ServiceUnavailable)]
+    public async Task UploadPublicKeyThrowsUnexpectedResponseExceptionOnNon2xxResponse(HttpStatusCode statusCode)
     {
         var sut = _fixture.WithStatusCode(statusCode).CreateSut();
 
         await Assert.ThrowsAsync<FiksIOSendUnexpectedResponseException>(
             () => sut.UploadPublicKey(Guid.NewGuid(), "pem"));
+    }
+
+    [Fact]
+    public async Task UploadPublicKeyThrowsUnauthorizedExceptionOn401()
+    {
+        var sut = _fixture.WithStatusCode(HttpStatusCode.Unauthorized).CreateSut();
+
+        await Assert.ThrowsAsync<FiksIOSendUnauthorizedException>(
+            () => sut.UploadPublicKey(Guid.NewGuid(), "pem"));
+    }
+
+    [Fact]
+    public async Task UploadPublicKeyThrowsUnexpectedResponseExceptionWithAccountInMessageOn404()
+    {
+        var kontoId = Guid.NewGuid();
+        var sut = _fixture.WithStatusCode(HttpStatusCode.NotFound).CreateSut();
+
+        var exception = await Assert.ThrowsAsync<FiksIOSendUnexpectedResponseException>(
+            () => sut.UploadPublicKey(kontoId, "pem"));
+
+        // A 404 means the account itself is missing, not a transient failure.
+        exception.ShouldNotBeOfType<FiksIOSendPublicKeyNotFoundException>();
+        exception.Message.ShouldContain(kontoId.ToString());
+    }
+
+    [Fact]
+    public async Task UploadPublicKeyThrowsArgumentExceptionWhenKontoIdIsEmpty()
+    {
+        var sut = _fixture.CreateSut();
+
+        await Assert.ThrowsAsync<ArgumentException>(
+            () => sut.UploadPublicKey(Guid.Empty, "pem"));
+    }
+
+    [Fact]
+    public async Task GetPublicKeyThrowsArgumentExceptionWhenReceiverAccountIdIsEmpty()
+    {
+        var sut = _fixture.CreateSut();
+
+        await Assert.ThrowsAsync<ArgumentException>(
+            () => sut.GetPublicKey(Guid.Empty));
     }
 }

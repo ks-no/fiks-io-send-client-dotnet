@@ -70,15 +70,19 @@ namespace KS.Fiks.IO.Send.Client.Catalog
 
         public async Task<X509Certificate> GetPublicKey(Guid receiverAccountId)
         {
+            if (receiverAccountId == Guid.Empty)
+            {
+                throw new ArgumentException("receiverAccountId cannot be empty", nameof(receiverAccountId));
+            }
+
             var requestUri = CreatePublicKeyUri(receiverAccountId);
 
             // GetPublicKey is unauthenticated, so the request is issued directly here (instead of via
             // GetAsModel) to special-case HTTP 404 / empty payload as "no key registered" without changing
             // the shared response handling used by the other catalog endpoints.
             using (var requestMessage = new HttpRequestMessage(HttpMethod.Get, requestUri))
+            using (var response = await _httpClient.SendAsync(requestMessage).ConfigureAwait(false))
             {
-                var response = await _httpClient.SendAsync(requestMessage).ConfigureAwait(false);
-
                 if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
                 {
                     throw new FiksIOSendPublicKeyNotFoundException(
@@ -102,6 +106,11 @@ namespace KS.Fiks.IO.Send.Client.Catalog
 
         public async Task UploadPublicKey(Guid kontoId, string pemString)
         {
+            if (kontoId == Guid.Empty)
+            {
+                throw new ArgumentException("kontoId cannot be empty", nameof(kontoId));
+            }
+
             if (string.IsNullOrEmpty(pemString))
             {
                 throw new ArgumentException("pemString cannot be null or empty", nameof(pemString));
@@ -123,6 +132,20 @@ namespace KS.Fiks.IO.Send.Client.Catalog
                     if (!response.IsSuccessStatusCode)
                     {
                         var content = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+
+                        if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+                        {
+                            throw new FiksIOSendUnauthorizedException(
+                                $"Unauthorized (HTTP 401) when uploading public key for account {kontoId} to {uri}. " +
+                                $"Check the integration credentials. Content: {content}.");
+                        }
+
+                        if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
+                        {
+                            throw new FiksIOSendUnexpectedResponseException(
+                                $"Account {kontoId} does not exist in the catalog (HTTP 404) at {uri}. Content: {content}.");
+                        }
+
                         throw new FiksIOSendUnexpectedResponseException(
                             $"Got unexpected HTTP Status code {response.StatusCode} from {uri}. Content: {content}.");
                     }
@@ -199,12 +222,13 @@ namespace KS.Fiks.IO.Send.Client.Catalog
                     await AddAuthHeaders(requestMessage).ConfigureAwait(false);
                 }
 
-                var response = await _httpClient.SendAsync(requestMessage).ConfigureAwait(false);
+                using (var response = await _httpClient.SendAsync(requestMessage).ConfigureAwait(false))
+                {
+                    await ThrowIfResponseIsInvalid(response, requestUri).ConfigureAwait(false);
 
-                await ThrowIfResponseIsInvalid(response, requestUri).ConfigureAwait(false);
-
-                var responseAsJsonString = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-                return JsonConvert.DeserializeObject<T>(responseAsJsonString);
+                    var responseAsJsonString = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+                    return JsonConvert.DeserializeObject<T>(responseAsJsonString);
+                }
             }
         }
 
