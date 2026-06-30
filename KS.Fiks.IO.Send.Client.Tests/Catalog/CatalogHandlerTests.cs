@@ -10,6 +10,7 @@ using KS.Fiks.IO.Send.Client.Exceptions;
 using KS.Fiks.IO.Send.Client.Models;
 using Moq;
 using Moq.Protected;
+using Newtonsoft.Json.Linq;
 using Org.BouncyCastle.X509;
 using Shouldly;
 using Xunit;
@@ -213,6 +214,41 @@ public class CatalogHandlerTests
     }
 
     [Fact]
+    public async Task GetPublicKeyThrowsPublicKeyNotFoundExceptionWhenCatalogReturns404()
+    {
+        var sut = _fixture.WithStatusCode(HttpStatusCode.NotFound).CreateSut();
+
+        await Assert.ThrowsAsync<FiksIOSendPublicKeyNotFoundException>(
+                async () => await sut.GetPublicKey(Guid.NewGuid()).ConfigureAwait(false))
+            .ConfigureAwait(false);
+    }
+
+    [Fact]
+    public async Task GetPublicKeyThrowsPublicKeyNotFoundExceptionWhenKeyPayloadIsEmpty()
+    {
+        var sut = _fixture
+            .WithPublicKeyResponse(new KontoOffentligNokkel { Nokkel = null })
+            .CreateSut();
+
+        await Assert.ThrowsAsync<FiksIOSendPublicKeyNotFoundException>(
+                async () => await sut.GetPublicKey(Guid.NewGuid()).ConfigureAwait(false))
+            .ConfigureAwait(false);
+    }
+
+    [Fact]
+    public async Task GetPublicKeyThrowsUnexpectedResponseExceptionOnTransientError()
+    {
+        var sut = _fixture.WithStatusCode(HttpStatusCode.InternalServerError).CreateSut();
+
+        var exception = await Assert.ThrowsAsync<FiksIOSendUnexpectedResponseException>(
+                async () => await sut.GetPublicKey(Guid.NewGuid()).ConfigureAwait(false))
+            .ConfigureAwait(false);
+
+        // A transient failure must not be reported as "key not found".
+        exception.ShouldNotBeOfType<FiksIOSendPublicKeyNotFoundException>();
+    }
+
+    [Fact]
     public async Task GetKontoReturnsExpectedAccount()
     {
         var expectedAccount = new KatalogKonto
@@ -246,5 +282,165 @@ public class CatalogHandlerTests
         result.IsGyldigMottaker.ShouldBe(expectedAccount.Status.GyldigMottaker);
         result.AntallKonsumenter.ShouldBe(expectedAccount.Status.AntallKonsumenter);
         result.AntallUavhentedeMeldinger.ShouldBe(expectedAccount.Status.AntallUavhentedeMeldinger);
+    }
+
+    [Fact]
+    public async Task UploadPublicKeyCallsPutToExpectedUri()
+    {
+        var host = "api.fiks.dev.ks.no";
+        var port = 443;
+        var scheme = "https";
+        var path = "/svarinn2/katalog/api/v1";
+        var kontoId = Guid.NewGuid();
+
+        var sut = _fixture.WithHost(host).WithPort(port).WithScheme(scheme).WithPath(path).CreateSut();
+
+        await sut.UploadPublicKey(kontoId, "-----BEGIN CERTIFICATE-----\nTESTDATA\n-----END CERTIFICATE-----");
+
+        _fixture.HttpMessageHandleMock.Protected().Verify(
+            "SendAsync",
+            Times.Exactly(1),
+            ItExpr.Is<HttpRequestMessage>(req =>
+                req.Method == HttpMethod.Put &&
+                req.RequestUri.Port == port &&
+                req.RequestUri.Host == host &&
+                req.RequestUri.Scheme == scheme &&
+                req.RequestUri.AbsolutePath == path + "/kontoer/" + kontoId + "/offentligNokkel"),
+            ItExpr.IsAny<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task UploadPublicKeySendsExpectedJsonBodyWithNokkel()
+    {
+        const string pemString = "-----BEGIN CERTIFICATE-----\nTESTDATA\n-----END CERTIFICATE-----";
+        string capturedBody = null;
+
+        var sut = _fixture.CreateSut();
+
+        _fixture.HttpMessageHandleMock
+            .Protected()
+            .Setup<Task<HttpResponseMessage>>(
+                "SendAsync",
+                ItExpr.IsAny<HttpRequestMessage>(),
+                ItExpr.IsAny<CancellationToken>())
+            .Callback<HttpRequestMessage, CancellationToken>((req, _) =>
+                capturedBody = req.Content.ReadAsStringAsync().GetAwaiter().GetResult())
+            .ReturnsAsync(new HttpResponseMessage { StatusCode = HttpStatusCode.OK, Content = new StringContent("{}") });
+
+        await sut.UploadPublicKey(Guid.NewGuid(), pemString);
+
+        capturedBody.ShouldNotBeNull();
+        var json = JObject.Parse(capturedBody);
+        json["nokkel"].Value<string>().ShouldBe(pemString);
+    }
+
+    [Fact]
+    public async Task UploadPublicKeySetsExpectedAuthorizationHeader()
+    {
+        var expectedToken = Guid.NewGuid().ToString();
+        var sut = _fixture.WithAccessToken(expectedToken).CreateSut();
+
+        await sut.UploadPublicKey(Guid.NewGuid(), "pem");
+
+        _fixture.HttpMessageHandleMock.Protected().Verify(
+            "SendAsync",
+            Times.Exactly(1),
+            ItExpr.Is<HttpRequestMessage>(req =>
+                req.Headers.Authorization.Scheme == "Bearer" &&
+                req.Headers.Authorization.Parameter == expectedToken),
+            ItExpr.IsAny<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task UploadPublicKeySetsExpectedIntegrasjonHeaders()
+    {
+        var expectedId = Guid.NewGuid();
+        var expectedPassword = "myIntegrasjonPassword";
+        var sut = _fixture.WithIntegrasjonId(expectedId).WithIntegrasjonPassword(expectedPassword).CreateSut();
+
+        await sut.UploadPublicKey(Guid.NewGuid(), "pem");
+
+        _fixture.HttpMessageHandleMock.Protected().Verify(
+            "SendAsync",
+            Times.Exactly(1),
+            ItExpr.Is<HttpRequestMessage>(req =>
+                req.Headers.GetValues("integrasjonId").FirstOrDefault() == expectedId.ToString() &&
+                req.Headers.GetValues("integrasjonPassord").FirstOrDefault() == expectedPassword),
+            ItExpr.IsAny<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task UploadPublicKeySetsContentTypeApplicationJson()
+    {
+        string capturedContentType = null;
+
+        var sut = _fixture.CreateSut();
+
+        _fixture.HttpMessageHandleMock
+            .Protected()
+            .Setup<Task<HttpResponseMessage>>(
+                "SendAsync",
+                ItExpr.IsAny<HttpRequestMessage>(),
+                ItExpr.IsAny<CancellationToken>())
+            .Callback<HttpRequestMessage, CancellationToken>((req, _) =>
+                capturedContentType = req.Content.Headers.ContentType.MediaType)
+            .ReturnsAsync(new HttpResponseMessage { StatusCode = HttpStatusCode.OK, Content = new StringContent("{}") });
+
+        await sut.UploadPublicKey(Guid.NewGuid(), "pem");
+
+        capturedContentType.ShouldBe("application/json");
+    }
+
+    [Theory]
+    [InlineData(HttpStatusCode.BadRequest)]
+    [InlineData(HttpStatusCode.InternalServerError)]
+    [InlineData(HttpStatusCode.ServiceUnavailable)]
+    public async Task UploadPublicKeyThrowsUnexpectedResponseExceptionOnNon2xxResponse(HttpStatusCode statusCode)
+    {
+        var sut = _fixture.WithStatusCode(statusCode).CreateSut();
+
+        await Assert.ThrowsAsync<FiksIOSendUnexpectedResponseException>(
+            () => sut.UploadPublicKey(Guid.NewGuid(), "pem"));
+    }
+
+    [Fact]
+    public async Task UploadPublicKeyThrowsUnauthorizedExceptionOn401()
+    {
+        var sut = _fixture.WithStatusCode(HttpStatusCode.Unauthorized).CreateSut();
+
+        await Assert.ThrowsAsync<FiksIOSendUnauthorizedException>(
+            () => sut.UploadPublicKey(Guid.NewGuid(), "pem"));
+    }
+
+    [Fact]
+    public async Task UploadPublicKeyThrowsUnexpectedResponseExceptionWithAccountInMessageOn404()
+    {
+        var kontoId = Guid.NewGuid();
+        var sut = _fixture.WithStatusCode(HttpStatusCode.NotFound).CreateSut();
+
+        var exception = await Assert.ThrowsAsync<FiksIOSendUnexpectedResponseException>(
+            () => sut.UploadPublicKey(kontoId, "pem"));
+
+        // A 404 means the account itself is missing, not a transient failure.
+        exception.ShouldNotBeOfType<FiksIOSendPublicKeyNotFoundException>();
+        exception.Message.ShouldContain(kontoId.ToString());
+    }
+
+    [Fact]
+    public async Task UploadPublicKeyThrowsArgumentExceptionWhenKontoIdIsEmpty()
+    {
+        var sut = _fixture.CreateSut();
+
+        await Assert.ThrowsAsync<ArgumentException>(
+            () => sut.UploadPublicKey(Guid.Empty, "pem"));
+    }
+
+    [Fact]
+    public async Task GetPublicKeyThrowsArgumentExceptionWhenReceiverAccountIdIsEmpty()
+    {
+        var sut = _fixture.CreateSut();
+
+        await Assert.ThrowsAsync<ArgumentException>(
+            () => sut.GetPublicKey(Guid.Empty));
     }
 }
