@@ -25,6 +25,7 @@ public class CatalogHandlerFixture
     private string _host = "api.fiks.dev.ks";
     private int _port = 80;
     private string _path = "/svarinn2/katalog/api/v1";
+    private string _kontoPath = "/svarinn2/konto/api/v1";
     private string _accessToken = "token";
     private string _integrasjonPassword = "default";
     private Guid _integrasjonId;
@@ -40,7 +41,7 @@ public class CatalogHandlerFixture
     {
         SetupMocks();
         return new CatalogHandler(
-            new KatalogConfiguration(_path, _scheme, _host, _port),
+            new KatalogConfiguration(_path, _scheme, _host, _port, _kontoPath),
             new IntegrasjonConfiguration(_integrasjonId, _integrasjonPassword),
             MaskinportenClientMock.Object,
             new HttpClient(HttpMessageHandleMock.Object));
@@ -100,6 +101,12 @@ public class CatalogHandlerFixture
     public CatalogHandlerFixture WithPath(string path)
     {
         _path = path;
+        return this;
+    }
+
+    public CatalogHandlerFixture WithKontoPath(string kontoPath)
+    {
+        _kontoPath = kontoPath;
         return this;
     }
 
