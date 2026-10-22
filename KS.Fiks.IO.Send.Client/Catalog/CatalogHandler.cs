@@ -2,6 +2,7 @@ using System;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using KS.Fiks.Crypto.BouncyCastle;
 using KS.Fiks.IO.Send.Client.Configuration;
@@ -104,7 +105,7 @@ namespace KS.Fiks.IO.Send.Client.Catalog
             }
         }
 
-        public async Task UploadPublicKey(Guid kontoId, string pemString)
+        public async Task UploadPublicKey(Guid kontoId, string pemString, CancellationToken cancellationToken = default)
         {
             if (kontoId == Guid.Empty)
             {
@@ -116,18 +117,18 @@ namespace KS.Fiks.IO.Send.Client.Catalog
                 throw new ArgumentException("pemString cannot be null or empty", nameof(pemString));
             }
 
-            var uri = CreatePublicKeyUri(kontoId);
+            var uri = CreateKontoPublicKeyUri(kontoId);
 
             using (var requestMessage = new HttpRequestMessage(HttpMethod.Put, uri))
             {
                 await AddAuthHeaders(requestMessage).ConfigureAwait(false);
 
                 requestMessage.Content = new StringContent(
-                    JsonConvert.SerializeObject(new { nokkel = pemString }),
+                    JsonConvert.SerializeObject(new { pem = pemString }),
                     Encoding.UTF8,
                     "application/json");
 
-                using (var response = await _httpClient.SendAsync(requestMessage).ConfigureAwait(false))
+                using (var response = await _httpClient.SendAsync(requestMessage, cancellationToken).ConfigureAwait(false))
                 {
                     if (!response.IsSuccessStatusCode)
                     {
@@ -205,6 +206,18 @@ namespace KS.Fiks.IO.Send.Client.Catalog
         {
             var servicePath =
                 $"{_katalogConfiguration.Path}/{AccountsEndpoint}/{receiverAccountId.ToString()}/{PublicKeyEndpoint}";
+            return new UriBuilder(
+                    _katalogConfiguration.Scheme,
+                    _katalogConfiguration.Host,
+                    _katalogConfiguration.Port,
+                    servicePath)
+                .Uri;
+        }
+
+        private Uri CreateKontoPublicKeyUri(Guid kontoId)
+        {
+            var servicePath =
+                $"{_katalogConfiguration.KontoPath}/{AccountsEndpoint}/{kontoId.ToString()}/{PublicKeyEndpoint}";
             return new UriBuilder(
                     _katalogConfiguration.Scheme,
                     _katalogConfiguration.Host,

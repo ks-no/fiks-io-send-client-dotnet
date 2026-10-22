@@ -290,10 +290,10 @@ public class CatalogHandlerTests
         var host = "api.fiks.dev.ks.no";
         var port = 443;
         var scheme = "https";
-        var path = "/svarinn2/katalog/api/v1";
+        var kontoPath = "/svarinn2/konto/api/v1";
         var kontoId = Guid.NewGuid();
 
-        var sut = _fixture.WithHost(host).WithPort(port).WithScheme(scheme).WithPath(path).CreateSut();
+        var sut = _fixture.WithHost(host).WithPort(port).WithScheme(scheme).WithKontoPath(kontoPath).CreateSut();
 
         await sut.UploadPublicKey(kontoId, "-----BEGIN CERTIFICATE-----\nTESTDATA\n-----END CERTIFICATE-----");
 
@@ -305,12 +305,12 @@ public class CatalogHandlerTests
                 req.RequestUri.Port == port &&
                 req.RequestUri.Host == host &&
                 req.RequestUri.Scheme == scheme &&
-                req.RequestUri.AbsolutePath == path + "/kontoer/" + kontoId + "/offentligNokkel"),
+                req.RequestUri.AbsolutePath == kontoPath + "/kontoer/" + kontoId + "/offentligNokkel"),
             ItExpr.IsAny<CancellationToken>());
     }
 
     [Fact]
-    public async Task UploadPublicKeySendsExpectedJsonBodyWithNokkel()
+    public async Task UploadPublicKeySendsExpectedJsonBodyWithPem()
     {
         const string pemString = "-----BEGIN CERTIFICATE-----\nTESTDATA\n-----END CERTIFICATE-----";
         string capturedBody = null;
@@ -331,7 +331,8 @@ public class CatalogHandlerTests
 
         capturedBody.ShouldNotBeNull();
         var json = JObject.Parse(capturedBody);
-        json["nokkel"].Value<string>().ShouldBe(pemString);
+        json["pem"].Value<string>().ShouldBe(pemString);
+        json.ContainsKey("nokkel").ShouldBeFalse();
     }
 
     [Fact]
@@ -433,6 +434,50 @@ public class CatalogHandlerTests
 
         await Assert.ThrowsAsync<ArgumentException>(
             () => sut.UploadPublicKey(Guid.Empty, "pem"));
+    }
+
+    [Theory]
+    [InlineData(null)]
+    [InlineData("")]
+    public async Task UploadPublicKeyThrowsArgumentExceptionWhenPemStringIsNullOrEmpty(string pemString)
+    {
+        var sut = _fixture.CreateSut();
+
+        var exception = await Assert.ThrowsAsync<ArgumentException>(
+            () => sut.UploadPublicKey(Guid.NewGuid(), pemString));
+
+        exception.ParamName.ShouldBe("pemString");
+        _fixture.HttpMessageHandleMock.Protected().Verify(
+            "SendAsync",
+            Times.Never(),
+            ItExpr.IsAny<HttpRequestMessage>(),
+            ItExpr.IsAny<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task UploadPublicKeyAllowsCancellation()
+    {
+        using var cts = new CancellationTokenSource();
+        await cts.CancelAsync();
+        var sut = _fixture.CreateSut();
+
+        _fixture.HttpMessageHandleMock
+            .Protected()
+            .Setup<Task<HttpResponseMessage>>(
+                "SendAsync",
+                ItExpr.IsAny<HttpRequestMessage>(),
+                ItExpr.Is<CancellationToken>(token => token.IsCancellationRequested))
+            .Returns((HttpRequestMessage _, CancellationToken token) =>
+                Task.FromCanceled<HttpResponseMessage>(token));
+
+        await Assert.ThrowsAsync<TaskCanceledException>(
+            () => sut.UploadPublicKey(Guid.NewGuid(), "pem", cts.Token));
+
+        _fixture.HttpMessageHandleMock.Protected().Verify(
+            "SendAsync",
+            Times.Exactly(1),
+            ItExpr.IsAny<HttpRequestMessage>(),
+            ItExpr.Is<CancellationToken>(token => token.IsCancellationRequested));
     }
 
     [Fact]
