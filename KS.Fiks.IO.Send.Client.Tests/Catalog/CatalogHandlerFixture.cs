@@ -24,8 +24,8 @@ public class CatalogHandlerFixture
     private string _scheme = "http";
     private string _host = "api.fiks.dev.ks";
     private int _port = 80;
-    private string _path = "/svarinn2/katalog/api/v1";
-    private string _kontoPath = "/svarinn2/konto/api/v1";
+    private string _path = "/test/katalog/api/v1";
+    private string _kontoPath = "/test/konto/api/v1";
     private string _accessToken = "token";
     private string _integrasjonPassword = "default";
     private Guid _integrasjonId;

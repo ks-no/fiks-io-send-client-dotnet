@@ -78,10 +78,10 @@ public class CatalogHandlerTests
     [Fact]
     public async Task CallsExpectedUri()
     {
-        var host = "api.fiks.dev.ks.no";
+        var host = "api.example.test";
         var port = 443;
         var scheme = "https";
-        var path = "/svarinn2/katalog/api/v1";
+        var path = "/test/katalog/api/v1";
 
         var sut = _fixture.WithHost(host).WithPort(port).WithScheme(scheme).WithPath(path).CreateSut();
 
@@ -183,10 +183,10 @@ public class CatalogHandlerTests
     [Fact]
     public async Task GetPublicKeyUsesGetCallWithExpectedAccount()
     {
-        var host = "api.fiks.dev.ks.no";
+        var host = "api.example.test";
         var port = 443;
         var scheme = "https";
-        var path = "/svarinn2/katalog/api/v1";
+        var path = "/test/katalog/api/v1";
 
         var sut = _fixture.WithHost(host).WithPort(port).WithScheme(scheme).WithPath(path)
             .WithPublicKeyResponse(_fixture.CreateDefaultPublicKey()).CreateSut();
@@ -287,10 +287,10 @@ public class CatalogHandlerTests
     [Fact]
     public async Task UploadPublicKeyCallsPutToExpectedUri()
     {
-        var host = "api.fiks.dev.ks.no";
+        var host = "api.example.test";
         var port = 443;
         var scheme = "https";
-        var kontoPath = "/svarinn2/konto/api/v1";
+        var kontoPath = "/test/konto/api/v1";
         var kontoId = Guid.NewGuid();
 
         var sut = _fixture.WithHost(host).WithPort(port).WithScheme(scheme).WithKontoPath(kontoPath).CreateSut();
