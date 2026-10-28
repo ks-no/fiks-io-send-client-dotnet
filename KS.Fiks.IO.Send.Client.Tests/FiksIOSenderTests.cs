@@ -315,8 +315,17 @@ namespace KS.Fiks.IO.Send.Client.Tests
             maskinportenMock.Setup(x => x.GetAccessToken(It.IsAny<string>())).ReturnsAsync(new MaskinportenToken(string.Empty, 300));
             var authStrategy = new IntegrasjonAuthenticationStrategy(maskinportenMock.Object, Guid.Empty, string.Empty);
             var sut = _fixture.CreateSut(authStrategy);
-            var cts = new CancellationTokenSource();
+            using var cts = new CancellationTokenSource();
             await cts.CancelAsync();
+
+            _fixture.HttpMessageHandleMock
+                .Protected()
+                .Setup<Task<HttpResponseMessage>>(
+                    "SendAsync",
+                    ItExpr.IsAny<HttpRequestMessage>(),
+                    ItExpr.Is<CancellationToken>(token => token.IsCancellationRequested))
+                .Returns((HttpRequestMessage _, CancellationToken token) =>
+                    Task.FromCanceled<HttpResponseMessage>(token));
 
             Func<Task<SendtMeldingApiModel>> method = methodId switch
             {
@@ -333,6 +342,11 @@ namespace KS.Fiks.IO.Send.Client.Tests
             // Assert
             Assert.IsType<TaskCanceledException>(ex);
             Assert.Contains("canceled", ex.Message, StringComparison.OrdinalIgnoreCase);
+            _fixture.HttpMessageHandleMock.Protected().Verify(
+                "SendAsync",
+                Times.Once(),
+                ItExpr.IsAny<HttpRequestMessage>(),
+                ItExpr.Is<CancellationToken>(token => token.IsCancellationRequested));
         }
     }
 
