@@ -1,7 +1,8 @@
 using System;
-using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using KS.Fiks.Crypto.BouncyCastle;
 using KS.Fiks.IO.Send.Client.Configuration;
@@ -70,15 +71,92 @@ namespace KS.Fiks.IO.Send.Client.Catalog
 
         public async Task<X509Certificate> GetPublicKey(Guid receiverAccountId)
         {
+            if (receiverAccountId == Guid.Empty)
+            {
+                throw new ArgumentException("receiverAccountId cannot be empty", nameof(receiverAccountId));
+            }
+
             var requestUri = CreatePublicKeyUri(receiverAccountId);
-            var responseAsPublicKeyModel = await GetAsModel<KontoOffentligNokkel>(requestUri, authenticated: false)
-                .ConfigureAwait(false);
-            return X509CertificateReader.ExtractCertificate(responseAsPublicKeyModel.Nokkel);
+
+            // GetPublicKey is unauthenticated, so the request is issued directly here (instead of via
+            // GetAsModel) to special-case HTTP 404 / empty payload as "no key registered" without changing
+            // the shared response handling used by the other catalog endpoints.
+            using (var requestMessage = new HttpRequestMessage(HttpMethod.Get, requestUri))
+            using (var response = await _httpClient.SendAsync(requestMessage).ConfigureAwait(false))
+            {
+                if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
+                {
+                    throw new FiksIOSendPublicKeyNotFoundException(
+                        $"No public key is registered in the catalog for account {receiverAccountId}.");
+                }
+
+                await ThrowIfResponseIsInvalid(response, requestUri).ConfigureAwait(false);
+
+                var responseAsJsonString = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+                var responseAsPublicKeyModel = JsonConvert.DeserializeObject<KontoOffentligNokkel>(responseAsJsonString);
+
+                if (string.IsNullOrWhiteSpace(responseAsPublicKeyModel?.Nokkel))
+                {
+                    throw new FiksIOSendPublicKeyNotFoundException(
+                        $"No public key is registered in the catalog for account {receiverAccountId}.");
+                }
+
+                return X509CertificateReader.ExtractCertificate(responseAsPublicKeyModel.Nokkel);
+            }
+        }
+
+        public async Task UploadPublicKey(Guid kontoId, string pemString, CancellationToken cancellationToken = default)
+        {
+            if (kontoId == Guid.Empty)
+            {
+                throw new ArgumentException("kontoId cannot be empty", nameof(kontoId));
+            }
+
+            if (string.IsNullOrEmpty(pemString))
+            {
+                throw new ArgumentException("pemString cannot be null or empty", nameof(pemString));
+            }
+
+            var uri = CreateKontoPublicKeyUri(kontoId);
+
+            using (var requestMessage = new HttpRequestMessage(HttpMethod.Put, uri))
+            {
+                await AddAuthHeaders(requestMessage).ConfigureAwait(false);
+
+                requestMessage.Content = new StringContent(
+                    JsonConvert.SerializeObject(new { pem = pemString }),
+                    Encoding.UTF8,
+                    "application/json");
+
+                using (var response = await _httpClient.SendAsync(requestMessage, cancellationToken).ConfigureAwait(false))
+                {
+                    if (!response.IsSuccessStatusCode)
+                    {
+                        var content = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+
+                        if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+                        {
+                            throw new FiksIOSendUnauthorizedException(
+                                $"Unauthorized (HTTP 401) when uploading public key for account {kontoId} to {uri}. " +
+                                $"Check the integration credentials. Content: {content}.");
+                        }
+
+                        if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
+                        {
+                            throw new FiksIOSendUnexpectedResponseException(
+                                $"Account {kontoId} does not exist in the catalog (HTTP 404) at {uri}. Content: {content}.");
+                        }
+
+                        throw new FiksIOSendUnexpectedResponseException(
+                            $"Got unexpected HTTP Status code {response.StatusCode} from {uri}. Content: {content}.");
+                    }
+                }
+            }
         }
 
         private static async Task ThrowIfResponseIsInvalid(HttpResponseMessage response, Uri requestUri)
         {
-            if (response.StatusCode != HttpStatusCode.OK)
+            if (response.StatusCode != System.Net.HttpStatusCode.OK)
             {
                 var content = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
                 throw new FiksIOSendUnexpectedResponseException(
@@ -136,34 +214,45 @@ namespace KS.Fiks.IO.Send.Client.Catalog
                 .Uri;
         }
 
+        private Uri CreateKontoPublicKeyUri(Guid kontoId)
+        {
+            var servicePath =
+                $"{_katalogConfiguration.KontoPath}/{AccountsEndpoint}/{kontoId.ToString()}/{PublicKeyEndpoint}";
+            return new UriBuilder(
+                    _katalogConfiguration.Scheme,
+                    _katalogConfiguration.Host,
+                    _katalogConfiguration.Port,
+                    servicePath)
+                .Uri;
+        }
+
         private async Task<T> GetAsModel<T>(Uri requestUri, bool authenticated = true)
         {
             using (var requestMessage = new HttpRequestMessage(HttpMethod.Get, requestUri))
             {
                 if (authenticated)
                 {
-                    var accessToken = await _maskinportenClient.GetAccessToken(_integrasjonConfiguration.Scope)
-                        .ConfigureAwait(false);
-
-                    requestMessage.Headers.Add(
-                        "integrasjonId",
-                        _integrasjonConfiguration.IntegrasjonId.ToString());
-
-                    requestMessage.Headers.Add(
-                        "integrasjonPassord",
-                        _integrasjonConfiguration.IntegrasjonPassord);
-
-                    requestMessage.Headers.Authorization =
-                        new AuthenticationHeaderValue("Bearer", accessToken.Token);
+                    await AddAuthHeaders(requestMessage).ConfigureAwait(false);
                 }
 
-                var response = await _httpClient.SendAsync(requestMessage).ConfigureAwait(false);
+                using (var response = await _httpClient.SendAsync(requestMessage).ConfigureAwait(false))
+                {
+                    await ThrowIfResponseIsInvalid(response, requestUri).ConfigureAwait(false);
 
-                await ThrowIfResponseIsInvalid(response, requestUri).ConfigureAwait(false);
-
-                var responseAsJsonString = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-                return JsonConvert.DeserializeObject<T>(responseAsJsonString);
+                    var responseAsJsonString = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+                    return JsonConvert.DeserializeObject<T>(responseAsJsonString);
+                }
             }
+        }
+
+        private async Task AddAuthHeaders(HttpRequestMessage requestMessage)
+        {
+            var accessToken = await _maskinportenClient.GetAccessToken(_integrasjonConfiguration.Scope)
+                .ConfigureAwait(false);
+
+            requestMessage.Headers.Add("integrasjonId", _integrasjonConfiguration.IntegrasjonId.ToString());
+            requestMessage.Headers.Add("integrasjonPassord", _integrasjonConfiguration.IntegrasjonPassord);
+            requestMessage.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken.Token);
         }
     }
 }
