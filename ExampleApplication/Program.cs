@@ -14,7 +14,7 @@ var maskinportenClient = new MaskinportenClient(new MaskinportenClientConfigurat
     appSettings.MaskinPortenTokenUrl,
     appSettings.MaskinPortenIssuer,
     numberOfSecondsLeftBeforeExpire: 10,
-    certificate: new X509Certificate2(
+    certificate: X509CertificateLoader.LoadPkcs12FromFile(
         appSettings.MaskinPortenCompanyCertificatePath,
         appSettings.MaskinPortenCompanyCertificatePassword)));
 
