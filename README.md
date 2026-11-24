@@ -9,7 +9,8 @@
 > - Java: [fiks-io-klient-java](https://github.com/ks-no/fiks-io-klient-java)
 > - .NET: [fiks-io-client-dotnet](https://github.com/ks-no/fiks-io-client-dotnet)
 
-This is a .NET library compatible with **.NET 8**, _[.NET Standard 2.1](https://docs.microsoft.com/en-us/dotnet/standard/net-standard)_, and _[.NET Standard 2.0](https://learn.microsoft.com/en-us/dotnet/standard/net-standard?tabs=net-standard-2-0)_ for sending messages to the Fiks platform.
+This is a .NET library compatible with _[.NET 10](https://learn.microsoft.com/en-us/dotnet/core/whats-new/dotnet-10/overview)_, _[.NET Standard 2.1](https://docs.microsoft.com/en-us/dotnet/standard/net-standard)_, and _[.NET Standard 2.0](https://learn.microsoft.com/en-us/dotnet/standard/net-standard?tabs=net-standard-2-0)_ for sending messages to the Fiks platform.
+Projects targeting .NET 8 or .NET 9 use the .NET Standard 2.1 build.
 The library provides functionality to send messages to the Fiks platform using the Fiks IO Send API. The library supports sending messages with and without ASiC-E encryption.
 
 ## Getting Started
@@ -22,7 +23,7 @@ dotnet add package KS.Fiks.IO.Send.Client --version <version_number>
 
 ## Local Development
 
-**Prerequisites:** .NET 8 SDK
+**Prerequisites:** .NET 10 SDK
 
 ```sh
 git clone https://github.com/ks-no/fiks-io-send-client-dotnet.git
